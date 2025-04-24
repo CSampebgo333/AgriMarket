@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,9 +8,12 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { authService } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 export function LoginForm() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -24,15 +25,51 @@ export function LoginForm() {
     setError("")
 
     try {
-      // This would be replaced with actual authentication logic
-      // For demo purposes, we'll simulate a successful login
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await authService.login({ email, password })
+      
+      if (response.error) {
+        setError(response.error)
+        return
+      }
+      
+      // Store token and user data
+      localStorage.setItem("token", response.token)
+      localStorage.setItem("user", JSON.stringify(response.user))
+      
+      showToast({
+        title: "Success",
+        description: "Logged in successfully",
+        variant: "default",
+      })
 
-      // Redirect to the appropriate dashboard based on user role
-      // For demo, we'll redirect to customer dashboard
-      router.push("/dashboard/customer")
-    } catch (err) {
-      setError("Invalid email or password. Please try again.")
+      // Redirect based on user type
+      switch (response.user.user_type) {
+        case "Customer":
+          router.push("/dashboard/customer")
+          break
+        case "Seller":
+          router.push("/dashboard/seller")
+          break
+        case "Logistician":
+          router.push("/dashboard/logistician")
+          break
+        case "Admin":
+          router.push("/dashboard/admin")
+          break
+        default:
+          router.push("/")
+      }
+    } catch (err: any) {
+      console.error('Login error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error message:', err.message);
+      
+      setError(err.response?.data?.error || "Invalid email or password. Please try again.")
+      showToast({
+        title: "Error",
+        description: err.response?.data?.error || "Failed to login. Please check your credentials and try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -46,51 +83,50 @@ export function LoginForm() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+      
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           type="email"
-          placeholder="name@example.com"
+          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          disabled={isLoading}
         />
       </div>
+
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
-          <Button variant="link" className="p-0 h-auto text-xs" asChild>
-            <a href="/auth/forgot-password">Forgot password?</a>
-          </Button>
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          disabled={isLoading}
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Checkbox id="remember" />
+          <Label htmlFor="remember">Remember me</Label>
         </div>
-        <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Button
+          variant="link"
+          className="px-0"
+          onClick={() => router.push("/forgot-password")}
+        >
+          Forgot password?
+        </Button>
       </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox id="remember" />
-        <Label htmlFor="remember" className="text-sm">
-          Remember me
-        </Label>
-      </div>
+
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Logging in..." : "Login"}
       </Button>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <Button variant="outline" type="button" disabled={isLoading}>
-          Google
-        </Button>
-        <Button variant="outline" type="button" disabled={isLoading}>
-          Facebook
-        </Button>
-      </div>
     </form>
   )
 }

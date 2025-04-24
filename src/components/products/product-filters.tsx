@@ -1,138 +1,183 @@
-
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
+import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useRouter } from "next/navigation"
 
-// Sample filter options
 const categories = [
-  { id: "grains", label: "Grains" },
-  { id: "vegetables", label: "Vegetables" },
-  { id: "fruits", label: "Fruits" },
-  { id: "tubers", label: "Tubers" },
-  { id: "herbs", label: "Herbs" },
+  "All Categories",
+  "Vegetables",
+  "Fruits",
+  "Grains",
+  "Dairy & Eggs",
+  "Meat & Poultry",
+  "Fish & Seafood",
+  "Herbs & Spices",
+  "Nuts & Seeds",
 ]
 
-const origins = [
-  { id: "burkina-faso", label: "Burkina Faso" },
-  { id: "mali", label: "Mali" },
-  { id: "niger", label: "Niger" },
-]
+const regions = ["All Regions", "Central", "Northern", "Southern", "Eastern", "Western"]
 
 export function ProductFilters() {
-  const [priceRange, setPriceRange] = useState([0, 5000])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [selectedOrigins, setSelectedOrigins] = useState<string[]>([])
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([])
+  const [priceRange, setPriceRange] = useState([0, 100])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedRating, setSelectedRating] = useState<number>(0)
+  const router = useRouter()
 
-  const handleCategoryChange = (categoryId: string) => {
+  const handleCategoryChange = (category: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId],
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
     )
   }
 
-  const handleOriginChange = (originId: string) => {
-    setSelectedOrigins((prev) => (prev.includes(originId) ? prev.filter((id) => id !== originId) : [...prev, originId]))
+  const handleRegionChange = (region: string) => {
+    setSelectedRegions((prev) => (prev.includes(region) ? prev.filter((r) => r !== region) : [...prev, region]))
   }
 
-  const handlePriceChange = (value: number[]) => {
-    setPriceRange(value)
+  const handlePriceChange = (values: number[]) => {
+    setPriceRange(values)
   }
 
-  const resetFilters = () => {
-    setPriceRange([0, 5000])
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }
+
+  // Add a function to handle filter application
+  const applyFilters = () => {
+    // Apply the current filter state to the products
+    const queryParams = new URLSearchParams()
+
+    if (selectedCategory) {
+      queryParams.set("category", selectedCategory)
+    }
+
+    if (priceRange[0] !== 0 || priceRange[1] !== 100) {
+      queryParams.set("minPrice", priceRange[0].toString())
+      queryParams.set("maxPrice", priceRange[1].toString())
+    }
+
+    if (selectedRating > 0) {
+      queryParams.set("rating", selectedRating.toString())
+    }
+
+    // Navigate to the products page with the filters applied
+    const queryString = queryParams.toString()
+    router.push(`/products${queryString ? "?" + queryString : ""}`)
+  }
+
+  const clearFilters = () => {
     setSelectedCategories([])
-    setSelectedOrigins([])
+    setSelectedRegions([])
+    setPriceRange([0, 100])
+    setSearchTerm("")
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Filters</h3>
-        <Button variant="ghost" size="sm" onClick={resetFilters}>
-          Reset
-        </Button>
-      </div>
+    <div className="bg-white dark:bg-card p-4 rounded-lg shadow-sm mb-6">
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="search" className="text-sm font-medium">
+            Search Products
+          </label>
+          <div className="mt-1">
+            <Input
+              id="search"
+              placeholder="Search by name or description..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="border-0 shadow-none focus-visible:ring-1 focus-visible:ring-primary"
+            />
+          </div>
+        </div>
 
-      <Separator />
-
-      <Accordion type="multiple" defaultValue={["categories", "price", "origins"]} className="w-full">
-        <AccordionItem value="categories">
-          <AccordionTrigger>Categories</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-2">
+        <div>
+          <label className="text-sm font-medium">Categories</label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between mt-1 bg-white hover:bg-gray-50 hover:text-primary"
+              >
+                {selectedCategories.length ? `${selectedCategories.length} selected` : "Select categories"}
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[200px] bg-white">
               {categories.map((category) => (
-                <div key={category.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`category-${category.id}`}
-                    checked={selectedCategories.includes(category.id)}
-                    onCheckedChange={() => handleCategoryChange(category.id)}
-                  />
-                  <Label htmlFor={`category-${category.id}`}>{category.label}</Label>
-                </div>
+                <DropdownMenuCheckboxItem
+                  key={category}
+                  checked={selectedCategories.includes(category)}
+                  onCheckedChange={() => handleCategoryChange(category)}
+                >
+                  {category}
+                </DropdownMenuCheckboxItem>
               ))}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-        <AccordionItem value="price">
-          <AccordionTrigger>Price Range</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-4">
-              <Slider
-                defaultValue={[0, 5000]}
-                max={5000}
-                step={100}
-                value={priceRange}
-                onValueChange={handlePriceChange}
-              />
-              <div className="flex items-center justify-between">
-                <span>{priceRange[0].toLocaleString()} XOF</span>
-                <span>{priceRange[1].toLocaleString()} XOF</span>
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="origins">
-          <AccordionTrigger>Origin</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-2">
-              {origins.map((origin) => (
-                <div key={origin.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`origin-${origin.id}`}
-                    checked={selectedOrigins.includes(origin.id)}
-                    onCheckedChange={() => handleOriginChange(origin.id)}
-                  />
-                  <Label htmlFor={`origin-${origin.id}`}>{origin.label}</Label>
-                </div>
+        <div>
+          <label className="text-sm font-medium">Regions</label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between mt-1 bg-white hover:bg-gray-50 hover:text-primary"
+              >
+                {selectedRegions.length ? `${selectedRegions.length} selected` : "Select regions"}
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[200px] bg-white">
+              {regions.map((region) => (
+                <DropdownMenuCheckboxItem
+                  key={region}
+                  checked={selectedRegions.includes(region)}
+                  onCheckedChange={() => handleRegionChange(region)}
+                >
+                  {region}
+                </DropdownMenuCheckboxItem>
               ))}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-        <AccordionItem value="ratings">
-          <AccordionTrigger>Ratings</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-2">
-              {[5, 4, 3, 2, 1].map((rating) => (
-                <div key={rating} className="flex items-center space-x-2">
-                  <Checkbox id={`rating-${rating}`} />
-                  <Label htmlFor={`rating-${rating}`}>{rating} Stars & Above</Label>
-                </div>
-              ))}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+        <div>
+          <label className="text-sm font-medium">
+            Price Range: {priceRange[0] * 1000} - {priceRange[1] * 1000} XOF
+          </label>
+          <Slider
+            defaultValue={[0, 100]}
+            max={100}
+            step={1}
+            value={priceRange}
+            onValueChange={handlePriceChange}
+            className="mt-2"
+          />
+        </div>
 
-      <div className="pt-4">
-        <Button className="w-full">Apply Filters</Button>
+        <div className="flex gap-2 pt-2">
+          <Button className="flex-1 bg-primary hover:bg-primary/90 cursor-pointer" onClick={applyFilters}>
+            Apply Filters
+          </Button>
+          <Button variant="outline" onClick={clearFilters} className="flex-1 hover:text-primary hover:border-primary">
+            Clear
+          </Button>
+        </div>
       </div>
     </div>
   )

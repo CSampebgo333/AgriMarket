@@ -1,27 +1,23 @@
-import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "AgriMarket - African Food-Crop Marketplace",
-  description: "Online marketplace for food crops in Burkina Faso, Mali, and Niger",
+  title: "Bridge Market",
+  description: "A marketplace for agricultural products",
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
+      <body className={inter.className} suppressHydrationWarning>
+        {children}
       </body>
     </html>
   )

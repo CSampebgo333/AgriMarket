@@ -23,11 +23,7 @@ const product = {
     rating: 4.8,
     location: "Ouagadougou, Burkina Faso",
   },
-  images: [
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-  ],
+  images: ["/images/fonio.jpg", "/images/fonio.jpg", "/images/fonio.jpg"],
   description:
     "Fonio is a nutritious ancient grain native to West Africa. It's gluten-free, easy to digest, and rich in amino acids. Our fonio is organically grown in Burkina Faso using traditional farming methods that preserve the soil and environment.",
   details: {
@@ -79,7 +75,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Product Details */}
             <div className="space-y-6">
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-2 ">
                   <Badge>{product.category}</Badge>
                   <Badge variant="outline">Origin: {product.origin}</Badge>
                 </div>

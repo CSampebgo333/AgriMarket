@@ -19,7 +19,7 @@ const savedItems = [
     price: 2500,
     rating: 4.5,
     origin: "Burkina Faso",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/fonio.jpg",
     seller: "Burkina Organic Farms",
   },
   {
@@ -29,7 +29,7 @@ const savedItems = [
     price: 1800,
     rating: 4.2,
     origin: "Mali",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/millet.jpg",
     seller: "Mali Grain Cooperative",
   },
   {
@@ -39,7 +39,7 @@ const savedItems = [
     price: 3000,
     rating: 4.8,
     origin: "Burkina Faso",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/hibiscus.jpg",
     seller: "Burkina Herb Gardens",
   },
   {
@@ -49,7 +49,7 @@ const savedItems = [
     price: 1500,
     rating: 4.0,
     origin: "Burkina Faso",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/maize.jpg",
     seller: "Burkina Grain Collective",
   },
 ]

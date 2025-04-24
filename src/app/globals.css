@@ -21,6 +21,11 @@
   --input: 20 5.9% 90%;
   --ring: 24 56.8% 30.6%;
   --radius: 0.5rem;
+
+  /* New brand colors */
+  --brand-brown: 25 70% 30%;
+  --brand-green: 142 70.6% 45.3%;
+  --brand-green-hover: 142 70.6% 40%;
 }
 
 .dark {
@@ -45,11 +50,215 @@
   --ring: 24 56.8% 30.6%;
 }
 
+/* Dark mode improvements */
+.dark {
+  color-scheme: dark;
+}
+
+.dark .text-muted-foreground {
+  color: hsl(220 9% 70%);
+}
+
+.dark .border {
+  border-color: hsl(var(--border));
+}
+
+.dark .bg-muted {
+  background-color: hsl(var(--muted));
+}
+
+/* Improve contrast for buttons in dark mode */
+.dark button,
+.dark a[role="button"] {
+  color: hsl(var(--foreground));
+}
+
+.dark button:hover,
+.dark a[role="button"]:hover {
+  color: hsl(var(--accent));
+}
+
+/* Improve card contrast in dark mode */
+.dark .card {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Ensure category badges are visible in dark mode */
+.dark .category-badge {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border));
+}
+
+/* Improve navigation visibility in dark mode */
+.dark .nav-item {
+  color: hsl(var(--foreground));
+}
+
+.dark .nav-item:hover {
+  color: hsl(var(--accent));
+}
+
+/* Improve form elements in dark mode */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Improve accordion visibility in dark mode */
+.dark [data-state="open"] > [data-radix-accordion-trigger],
+.dark [data-radix-accordion-trigger]:hover {
+  background-color: hsl(var(--muted));
+}
+
+/* Footer links in dark mode */
+.dark footer a {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark footer a:hover {
+  color: hsl(var(--accent));
+}
+
 * {
   border-color: hsl(var(--border));
 }
 
 body {
   background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* Add global styles for buttons, dropdowns, and inputs */
+button,
+a[role="button"] {
+  cursor: pointer;
+}
+
+button:hover,
+a[role="button"]:hover {
+  color: hsl(var(--accent));
+}
+
+.dropdown-content,
+[data-radix-popper-content-wrapper] > div {
+  background-color: white !important;
+  border: 1px solid hsl(var(--border));
+}
+
+.dark .dropdown-content,
+.dark [data-radix-popper-content-wrapper] > div {
+  background-color: hsl(var(--card)) !important;
+}
+
+input[type="search"],
+input.search-input {
+  border: none;
+  outline: none;
+}
+
+/* Ensure all category badges have white background */
+.category-badge {
+  background-color: white !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border));
+}
+
+/* Logo styling */
+.brand-logo {
+  color: hsl(var(--primary));
+  font-weight: bold;
+}
+
+/* Cart badge styling */
+.cart-badge {
+  background-color: hsl(var(--accent)) !important;
+  color: white !important;
+}
+
+/* Product card styling */
+.product-card {
+  height: auto;
+  transition: transform 0.2s ease-in-out;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Navigation menu hover effects */
+.nav-item {
+  position: relative;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  color: hsl(var(--accent));
+}
+
+.nav-item::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: hsl(var(--accent));
+  transition: width 0.3s ease;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+}
+
+/* Footer link hover effects */
+footer a {
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+footer a:hover {
+  color: hsl(var(--accent));
+}
+
+/* Social media icons */
+.social-icon {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.social-icon:hover {
+  transform: translateY(-2px);
+  color: hsl(var(--accent));
+}
+
+/* Improve prose content for dark mode */
+.dark .prose {
+  color: hsl(var(--foreground));
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose h5,
+.dark .prose h6 {
+  color: hsl(var(--foreground));
+}
+
+.dark .prose a {
+  color: hsl(var(--accent));
+}
+
+.dark .prose strong {
   color: hsl(var(--foreground));
 }

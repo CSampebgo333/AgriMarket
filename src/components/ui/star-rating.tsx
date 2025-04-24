@@ -1,4 +1,5 @@
 import { Star } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface StarRatingProps {
   rating: number
@@ -6,40 +7,53 @@ interface StarRatingProps {
   size?: "sm" | "md" | "lg"
 }
 
-export function StarRating({ rating, max = 5, size = "md" }: StarRatingProps) {
-  const fullStars = Math.floor(rating)
-  const partialStar = rating % 1
-  const emptyStars = max - fullStars - (partialStar > 0 ? 1 : 0)
+// Update the StarRating component to color stars proportionally
+export function StarRating({ rating }: StarRatingProps) {
+  return (
+    <div className="flex items-center">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={cn(
+            "h-4 w-4",
+            star <= Math.floor(rating)
+              ? "text-yellow-500 fill-yellow-500"
+              : star <= rating
+                ? "text-yellow-500 fill-yellow-500 opacity-50"
+                : "text-gray-300",
+          )}
+        />
+      ))}
+    </div>
+  )
+}
 
-  const starSizes = {
-    sm: "w-3 h-3",
-    md: "w-4 h-4",
-    lg: "w-5 h-5",
-  }
-
-  const sizeClass = starSizes[size]
+// Add a new component for rating bars that colors proportionally
+export function RatingBars({ ratings }: { ratings: Record<number, number> }) {
+  const totalRatings = Object.values(ratings).reduce((sum, count) => sum + count, 0)
 
   return (
-    <div className="flex">
-      {/* Full stars */}
-      {Array.from({ length: fullStars }).map((_, i) => (
-        <Star key={`full-${i}`} className={`${sizeClass} fill-primary text-primary`} />
-      ))}
+    <div className="space-y-2">
+      {[5, 4, 3, 2, 1].map((rating) => {
+        const count = ratings[rating] || 0
+        const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0
 
-      {/* Partial star */}
-      {partialStar > 0 && (
-        <div className="relative">
-          <Star className={`${sizeClass} text-muted`} />
-          <div className="absolute top-0 left-0 overflow-hidden" style={{ width: `${partialStar * 100}%` }}>
-            <Star className={`${sizeClass} fill-primary text-primary`} />
+        return (
+          <div key={rating} className="flex items-center">
+            <span className="w-10 text-sm">{rating} ★</span>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mx-2">
+              <div
+                className="rating-bar-fill h-2.5 rounded-full"
+                style={{
+                  width: `${percentage}%`,
+                  backgroundColor: `hsl(45deg 93% 47% / ${percentage}%)`,
+                }}
+              ></div>
+            </div>
+            <span className="w-10 text-sm text-right">{count}</span>
           </div>
-        </div>
-      )}
-
-      {/* Empty stars */}
-      {Array.from({ length: emptyStars }).map((_, i) => (
-        <Star key={`empty-${i}`} className={`${sizeClass} text-muted`} />
-      ))}
+        )
+      })}
     </div>
   )
 }

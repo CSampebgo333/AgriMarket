@@ -8,7 +8,7 @@ export default function ProductsPage() {
     <div className="flex min-h-screen flex-col">
       <LandingNavbar />
       <main className="flex-1">
-        <div className="container py-8">
+        <div className="container mx-auto py-12 px-6 md:px-8 lg:px-12 max-w-7xl">
           <h1 className="text-3xl font-bold mb-6">Product Catalog</h1>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="md:col-span-1">

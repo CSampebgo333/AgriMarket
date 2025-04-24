@@ -1,44 +1,33 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-
-const countries = [
-  { value: "burkina-faso", label: "Burkina Faso" },
-  { value: "mali", label: "Mali" },
-  { value: "niger", label: "Niger" },
-]
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { authService } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 export function SignupForm() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [formData, setFormData] = useState({
-    name: "",
+    user_name: "",
     email: "",
-    phone: "",
     password: "",
     confirmPassword: "",
+    user_type: "Customer",
+    phone_number: "",
     country: "",
-    userType: "customer",
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +35,7 @@ export function SignupForm() {
     setIsLoading(true)
     setError("")
 
-    // Basic validation
+    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match")
       setIsLoading(false)
@@ -54,14 +43,45 @@ export function SignupForm() {
     }
 
     try {
-      // This would be replaced with actual registration logic
-      // For demo purposes, we'll simulate a successful registration
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Remove confirmPassword before sending to API
+      const { confirmPassword, ...registrationData } = formData
+      
+      const response = await authService.register(registrationData)
+      
+      // Store token and user data
+      localStorage.setItem("token", response.data.token)
+      localStorage.setItem("user", JSON.stringify(response.data.user))
+      
+      showToast({
+        title: "Success",
+        description: "Account created successfully",
+        variant: "default",
+      })
 
-      // Redirect to the appropriate dashboard based on user role
-      router.push(`/dashboard/${formData.userType}`)
-    } catch (err) {
-      setError("Failed to create account. Please try again.")
+      // Redirect based on user type
+      switch (response.data.user.user_type) {
+        case "Customer":
+          router.push("/dashboard/customer")
+          break
+        case "Seller":
+          router.push("/dashboard/seller")
+          break
+        case "Logistician":
+          router.push("/dashboard/logistician")
+          break
+        case "Admin":
+          router.push("/dashboard/admin")
+          break
+        default:
+          router.push("/")
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Failed to create account")
+      showToast({
+        title: "Error",
+        description: err.response?.data?.error || "Failed to create account",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -75,98 +95,101 @@ export function SignupForm() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+
       <div className="space-y-2">
         <Label htmlFor="name">Full Name</Label>
-        <Input id="name" name="name" placeholder="John Doe" value={formData.name} onChange={handleChange} required />
+        <Input
+          id="name"
+          placeholder="Enter your full name"
+          value={formData.user_name}
+          onChange={(e) => handleChange("user_name", e.target.value)}
+          required
+          disabled={isLoading}
+        />
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
-          name="email"
           type="email"
-          placeholder="name@example.com"
+          placeholder="Enter your email"
           value={formData.email}
-          onChange={handleChange}
+          onChange={(e) => handleChange("email", e.target.value)}
           required
+          disabled={isLoading}
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="phone">Phone Number</Label>
-        <Input
-          id="phone"
-          name="phone"
-          placeholder="+226 XX XX XX XX"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="country">Country</Label>
-        <Select value={formData.country} onValueChange={(value) => handleSelectChange("country", value)} required>
-          <SelectTrigger>
-            <SelectValue placeholder="Select your country" />
-          </SelectTrigger>
-          <SelectContent>
-            {countries.map((country) => (
-              <SelectItem key={country.value} value={country.value}>
-                {country.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label>Account Type</Label>
-        <RadioGroup
-          defaultValue="customer"
-          value={formData.userType}
-          onValueChange={(value) => handleSelectChange("userType", value)}
-          className="grid grid-cols-2 gap-4"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="customer" id="customer" />
-            <Label htmlFor="customer">Customer</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="seller" id="seller" />
-            <Label htmlFor="seller">Seller</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="logistician" id="logistician" />
-            <Label htmlFor="logistician">Logistician</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="administrator" id="administrator" />
-            <Label htmlFor="administrator">Administrator</Label>
-          </div>
-        </RadioGroup>
-      </div>
+
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <Input
           id="password"
-          name="password"
           type="password"
+          placeholder="Create a password"
           value={formData.password}
-          onChange={handleChange}
+          onChange={(e) => handleChange("password", e.target.value)}
           required
+          disabled={isLoading}
         />
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Confirm Password</Label>
         <Input
           id="confirmPassword"
-          name="confirmPassword"
           type="password"
+          placeholder="Confirm your password"
           value={formData.confirmPassword}
-          onChange={handleChange}
+          onChange={(e) => handleChange("confirmPassword", e.target.value)}
           required
+          disabled={isLoading}
         />
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="user_type">Account Type</Label>
+        <Select
+          value={formData.user_type}
+          onValueChange={(value) => handleChange("user_type", value)}
+          disabled={isLoading}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select account type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Customer">Customer</SelectItem>
+            <SelectItem value="Seller">Seller</SelectItem>
+            <SelectItem value="Logistician">Logistician</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="phone">Phone Number</Label>
+        <Input
+          id="phone"
+          type="tel"
+          placeholder="Enter your phone number"
+          value={formData.phone_number}
+          onChange={(e) => handleChange("phone_number", e.target.value)}
+          disabled={isLoading}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="country">Country</Label>
+        <Input
+          id="country"
+          placeholder="Enter your country"
+          value={formData.country}
+          onChange={(e) => handleChange("country", e.target.value)}
+          disabled={isLoading}
+        />
+      </div>
+
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Create account"}
+        {isLoading ? "Creating account..." : "Create Account"}
       </Button>
     </form>
   )

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { StarRating } from "@/components/ui/star-rating"
 import { ShoppingCart } from "lucide-react"
 
-// Sample product data
+// Update the recommended products data to include the correct image paths
 const recommendedProducts = [
   {
     id: 1,
@@ -13,7 +13,7 @@ const recommendedProducts = [
     price: 2800,
     rating: 4.8,
     origin: "Burkina Faso",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/fonio.jpg",
     seller: "Burkina Organic Farms",
   },
   {
@@ -23,7 +23,7 @@ const recommendedProducts = [
     price: 1500,
     rating: 4.5,
     origin: "Mali",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/sorghum.jpg",
     seller: "Mali Grain Cooperative",
   },
   {
@@ -33,7 +33,7 @@ const recommendedProducts = [
     price: 1000,
     rating: 4.3,
     origin: "Niger",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/sweet_potatoes.jpg",
     seller: "Niger Root Farms",
   },
   {
@@ -43,7 +43,7 @@ const recommendedProducts = [
     price: 1200,
     rating: 4.7,
     origin: "Burkina Faso",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/hibiscus.jpg",
     seller: "Ouaga Fresh Produce",
   },
 ]
@@ -52,7 +52,10 @@ export function RecommendedProducts() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {recommendedProducts.map((product) => (
-        <Card key={product.id} className="overflow-hidden">
+        <Card
+          key={product.id}
+          className="overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-lg"
+        >
           <div className="aspect-square relative">
             <img src={product.image || "/placeholder.svg"} alt={product.name} className="object-cover w-full h-full" />
             <Badge className="absolute top-2 right-2">{product.category}</Badge>

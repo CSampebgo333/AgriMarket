@@ -16,7 +16,7 @@ const featuredProducts = [
     price: 2500,
     rating: 4.5,
     origin: "Burkina Faso",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/fonio.jpg",
     seller: "Burkina Organic Farms",
   },
   {
@@ -26,7 +26,7 @@ const featuredProducts = [
     price: 1800,
     rating: 4.2,
     origin: "Mali",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/millet.jpg",
     seller: "Mali Grain Cooperative",
   },
   {
@@ -36,7 +36,7 @@ const featuredProducts = [
     price: 1200,
     rating: 4.0,
     origin: "Niger",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/cassava.jpg",
     seller: "Niger Root Farms",
   },
   {
@@ -46,7 +46,7 @@ const featuredProducts = [
     price: 900,
     rating: 4.7,
     origin: "Burkina Faso",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/images/okra.jpg",
     seller: "Ouaga Fresh Produce",
   },
 ]
@@ -66,7 +66,7 @@ export function FeaturedProducts() {
             </Button>
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {featuredProducts.map((product, index) => (
             <motion.div
               key={product.id}
@@ -74,7 +74,7 @@ export function FeaturedProducts() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              <Card className="overflow-hidden h-full">
+              <Card className="overflow-hidden h-full transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-lg">
                 <div className="aspect-square relative">
                   <img
                     src={product.image || "/placeholder.svg"}
@@ -83,25 +83,25 @@ export function FeaturedProducts() {
                   />
                   <Badge className="absolute top-2 right-2">{product.category}</Badge>
                 </div>
-                <CardHeader className="p-4 pb-0">
+                <CardHeader className="p-3 pb-0">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-semibold">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground">{product.seller}</p>
+                      <h3 className="font-semibold text-sm">{product.name}</h3>
+                      <p className="text-xs text-muted-foreground">{product.seller}</p>
                     </div>
-                    <p className="font-semibold">{product.price} XOF</p>
+                    <p className="font-semibold text-sm">{product.price} XOF</p>
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 pt-2">
-                  <div className="flex items-center gap-2">
-                    <StarRating rating={product.rating} />
-                    <span className="text-sm text-muted-foreground">({product.rating})</span>
+                <CardContent className="p-3 pt-2">
+                  <div className="flex items-center gap-1">
+                    <StarRating rating={product.rating} size="sm" />
+                    <span className="text-xs text-muted-foreground">({product.rating})</span>
                   </div>
-                  <p className="text-sm mt-1">Origin: {product.origin}</p>
+                  <p className="text-xs mt-1">Origin: {product.origin}</p>
                 </CardContent>
-                <CardFooter className="p-4 pt-0">
+                <CardFooter className="p-3 pt-0">
                   <Link href={`/products/${product.id}`} className="w-full">
-                    <Button variant="outline" className="w-full cursor-pointer">
+                    <Button variant="outline" className="w-full cursor-pointer h-8 text-xs">
                       View Details
                     </Button>
                   </Link>

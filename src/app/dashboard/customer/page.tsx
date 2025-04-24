@@ -14,7 +14,7 @@ export default function CustomerDashboard() {
           <h2 className="text-3xl font-bold tracking-tight">Customer Dashboard</h2>
           <p className="text-muted-foreground">Welcome back! Here's an overview of your activity.</p>
         </div>
-        <Link href="/dashboard/customer/products">
+        <Link href="/products">
           <Button className="w-full md:w-auto">
             <ShoppingBag className="mr-2 h-4 w-4" /> Browse Products
           </Button>
@@ -41,7 +41,7 @@ export default function CustomerDashboard() {
         <TabsContent value="recommended" className="space-y-4">
           <RecommendedProducts />
           <div className="flex justify-end">
-            <Link href="/dashboard/customer/products">
+            <Link href="/products">
               <Button variant="outline" size="sm">
                 View all products <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

@@ -59,19 +59,19 @@ export function AdminSalesChart() {
                       <div className="flex flex-col">
                         <span className="text-[0.70rem] uppercase text-muted-foreground">Burkina Faso</span>
                         <span className="font-bold" style={{ color: burkinaColor }}>
-                          {payload[0]?.value.toLocaleString()} XOF
+                          {payload[0]?.value?.toLocaleString() ?? '0'} XOF
                         </span>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[0.70rem] uppercase text-muted-foreground">Mali</span>
                         <span className="font-bold" style={{ color: maliColor }}>
-                          {payload[1]?.value.toLocaleString()} XOF
+                          {payload[1]?.value?.toLocaleString() ?? '0'} XOF
                         </span>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[0.70rem] uppercase text-muted-foreground">Niger</span>
                         <span className="font-bold" style={{ color: nigerColor }}>
-                          {payload[2]?.value.toLocaleString()} XOF
+                          {payload[2]?.value?.toLocaleString() ?? '0'} XOF
                         </span>
                       </div>
                     </div>

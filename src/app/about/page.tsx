@@ -8,30 +8,36 @@ import { motion } from "framer-motion"
 import { ArrowRight, Globe, Heart, Leaf, Shield } from "lucide-react"
 import Link from "next/link"
 
-// Team members data
+// Updated team members data with the requested names
 const teamMembers = [
   {
-    name: "Aminata Diallo",
+    name: "Clément Sampebgo",
     role: "CEO & Founder",
-    bio: "With over 15 years of experience in agricultural supply chains across West Africa, Aminata founded AgriMarket to empower local farmers.",
+    bio: "With over 15 years of experience in agricultural supply chains across West Africa, Clément founded AgriMarket to empower local farmers.",
     image: "/placeholder.svg?height=300&width=300",
   },
   {
-    name: "Ibrahim Ouedraogo",
+    name: "Debora Stanley Suday",
     role: "CTO",
-    bio: "Ibrahim leads our technology team, bringing his expertise in building digital platforms that work reliably even in areas with limited connectivity.",
+    bio: "Debora leads our technology team, bringing her expertise in building digital platforms that work reliably even in areas with limited connectivity.",
     image: "/placeholder.svg?height=300&width=300",
   },
   {
-    name: "Fatima Toure",
+    name: "Ester Michael Mkuya",
     role: "Operations Director",
-    bio: "Fatima oversees our logistics network, ensuring smooth delivery of products from farms to customers across the region.",
+    bio: "Ester oversees our logistics network, ensuring smooth delivery of products from farms to customers across the region.",
     image: "/placeholder.svg?height=300&width=300",
   },
   {
-    name: "Moussa Keita",
+    name: "Ousmane Boubacar Bako",
+    role: "Marketing Director",
+    bio: "Ousmane develops our marketing strategies, focusing on connecting farmers with buyers and promoting sustainable agriculture across West Africa.",
+    image: "/placeholder.svg?height=300&width=300",
+  },
+  {
+    name: "Ramatou Salah Hassane",
     role: "Community Manager",
-    bio: "Moussa works directly with our farmer communities, providing training and support to help them succeed on our platform.",
+    bio: "Ramatou works directly with our farmer communities, providing training and support to help them succeed on our platform.",
     image: "/placeholder.svg?height=300&width=300",
   },
 ]
@@ -68,7 +74,7 @@ export default function AboutPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative py-20 md:py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/img1.jpg')] bg-cover bg-center opacity-10" />
           <div className="container mx-auto px-4 relative z-10">
             <motion.div
               className="max-w-3xl mx-auto text-center"
@@ -114,13 +120,13 @@ export default function AboutPage() {
                     ensuring fair prices for all.
                   </p>
                   <p>
-                    Our founder, Aminata Diallo, grew up in a farming family in rural Burkina Faso. She witnessed
+                    Our founder, Clément Sampebgo, grew up in a farming family in rural Burkina Faso. He witnessed
                     firsthand the challenges farmers faced in getting fair prices for their crops and accessing reliable
                     markets.
                   </p>
                   <p>
                     After studying agricultural economics and working with several international development
-                    organizations, Aminata decided to leverage technology to solve these persistent challenges. She
+                    organizations, Clément decided to leverage technology to solve these persistent challenges. He
                     assembled a team of experts in technology, logistics, and agriculture to build AgriMarket.
                   </p>
                   <p>
@@ -137,7 +143,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.5 }}
               >
                 <img
-                  src="/placeholder.svg?height=600&width=800"
+                  src="/images/img1.jpg"
                   alt="Farmers in West Africa"
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -198,7 +204,7 @@ export default function AboutPage() {
                 Meet the passionate people behind AgriMarket
               </p>
             </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               {teamMembers.map((member, index) => (
                 <motion.div
                   key={index}
@@ -217,10 +223,10 @@ export default function AboutPage() {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="p-6">
-                        <h3 className="text-xl font-semibold">{member.name}</h3>
-                        <p className="text-primary font-medium mb-2">{member.role}</p>
-                        <p className="text-muted-foreground">{member.bio}</p>
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold">{member.name}</h3>
+                        <p className="text-primary font-medium mb-2 text-sm">{member.role}</p>
+                        <p className="text-muted-foreground text-sm">{member.bio}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -241,11 +247,7 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                <img
-                  src="/placeholder.svg?height=600&width=800"
-                  alt="AgriMarket Impact"
-                  className="w-full h-full object-cover rounded-lg"
-                />
+                <img src="/images/img1.jpg" alt="AgriMarket Impact" className="w-full h-full object-cover rounded-lg" />
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -268,8 +270,8 @@ export default function AboutPage() {
                   </ul>
                   <p>
                     We're proud of what we've accomplished, but we're just getting started. Our goal is to expand to
-                    more countries in West Africa and continue building a more resil to expand to more countries in West
-                    Africa and continue building a more resilient and equitable food system for the region.
+                    more countries in West Africa and continue building a more resilient and equitable food system for
+                    the region.
                   </p>
                   <div className="mt-6">
                     <Button asChild className="cursor-pointer">

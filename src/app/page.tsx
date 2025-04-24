@@ -1,9 +1,10 @@
+import { LandingNavbar } from "@/components/layout/landing-navbar"
+import { Footer } from "@/components/layout/footer"
 import { HeroSection } from "@/components/landing/hero-section"
 import { FeaturedProducts } from "@/components/landing/featured-products"
 import { HowItWorks } from "@/components/landing/how-it-works"
 import { Testimonials } from "@/components/landing/testimonials"
-import { Footer } from "@/components/layout/footer"
-import { LandingNavbar } from "@/components/layout/landing-navbar"
+import { CallToAction } from "@/components/landing/call-to-action"
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
         <FeaturedProducts />
         <HowItWorks />
         <Testimonials />
+        <CallToAction />
       </main>
       <Footer />
     </div>

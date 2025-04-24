@@ -1,16 +1,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { StarRating } from "@/components/ui/star-rating"
-import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { formatDate } from "@/utils/utils"
+import { formatDate } from "@/lib/utils"
 
-// Sample review data
+// Sample review data with updated avatar paths
 const reviews = [
   {
     id: 1,
     user: {
       name: "Amadou Diallo",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/images/amadou_diallo.jpg",
     },
     rating: 5,
     date: new Date(2023, 3, 15),
@@ -22,7 +21,7 @@ const reviews = [
     id: 2,
     user: {
       name: "Fatima Ouedraogo",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/images/fatima_ouderaogo.jpg",
     },
     rating: 4,
     date: new Date(2023, 3, 20),
@@ -34,7 +33,7 @@ const reviews = [
     id: 3,
     user: {
       name: "Ibrahim Maiga",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/images/ibrahim_maiga.jpg",
     },
     rating: 5,
     date: new Date(2023, 4, 2),
@@ -69,28 +68,30 @@ export function ProductReviews({ productId }: { productId: string }) {
           </div>
 
           <div className="space-y-2">
-            {[5, 4, 3, 2, 1].map((rating) => (
-              <div key={rating} className="flex items-center gap-2">
-                <div className="w-12 text-sm">{rating} stars</div>
-                <Progress
-                  value={(ratingDistribution[rating as keyof typeof ratingDistribution] / totalReviews) * 100}
-                  className="h-2"
-                />
-                <div className="w-12 text-sm text-right">
-                  {ratingDistribution[rating as keyof typeof ratingDistribution]}
+            {[5, 4, 3, 2, 1].map((rating) => {
+              const count = ratingDistribution[rating as keyof typeof ratingDistribution]
+              const percentage = (count / totalReviews) * 100
+
+              return (
+                <div key={rating} className="flex items-center gap-2">
+                  <div className="w-12 text-sm">{rating} stars</div>
+                  <div className="relative flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="absolute top-0 left-0 h-full bg-accent" style={{ width: `${percentage}%` }} />
+                  </div>
+                  <div className="w-12 text-sm text-right">{count}</div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
-          <Button className="w-full">Write a Review</Button>
+          <Button className="w-full hover:bg-accent hover:text-accent-foreground">Write a Review</Button>
         </div>
 
         <div className="md:col-span-2 space-y-6">
           {reviews.map((review) => (
             <div key={review.id} className="space-y-2 pb-6 border-b last:border-0">
               <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <Avatar>
                     <AvatarImage src={review.user.avatar || "/placeholder.svg"} alt={review.user.name} />
                     <AvatarFallback>{review.user.name.charAt(0)}</AvatarFallback>
@@ -107,17 +108,17 @@ export function ProductReviews({ productId }: { productId: string }) {
                 <p className="text-sm mt-1">{review.content}</p>
               </div>
               <div className="flex gap-4 pt-2">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="hover:text-accent">
                   Helpful
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="hover:text-accent">
                   Report
                 </Button>
               </div>
             </div>
           ))}
 
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full hover:text-accent">
             Load More Reviews
           </Button>
         </div>
