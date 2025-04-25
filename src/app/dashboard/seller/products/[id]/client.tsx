@@ -218,32 +218,22 @@ export function ProductDetailClient({ productId }: ProductDetailClientProps) {
 
             <Card>
               <CardHeader>
-                <CardTitle>Product Image</CardTitle>
+                <CardTitle >Product Image</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="aspect-square overflow-hidden rounded-lg border">
-                  <img
+                  {/* <img
                     src={product.image_url || "/placeholder.svg"}
                     alt={product.name}
                     className="h-full w-full object-cover"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Images</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  /> */}
                   {product.images.map((image) => (
                     <div key={image.image_id} className="relative group">
                       <div className="aspect-square overflow-hidden rounded-lg border">
                         <img
                           src={image.image_path.startsWith('http') ? image.image_path : `${API_URL}/uploads/${image.image_path}`}
                           alt={`${product.name} image`}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full"
                           onError={(e) => {
                             console.error("Image failed to load:", e);
                             console.error("Image path:", image.image_path);
@@ -261,6 +251,17 @@ export function ProductDetailClient({ productId }: ProductDetailClientProps) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* <Card>
+              <CardHeader>
+                <CardTitle>Product Images</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  
+                </div>
+              </CardContent>
+            </Card> */}
           </div>
         </CardContent>
       </Card>
