@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
+import Image from 'next/image';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -29,14 +30,23 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
+interface ImageData {
+  id: number;
+  url: string;
+  isPrimary: boolean;
+}
+
 interface ProductFormProps {
-  initialData?: any;
+  initialData?: ProductFormData & {
+    images?: ImageData[];
+  };
   onSubmit: (data: FormData) => Promise<void>;
 }
 
 export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [images, setImages] = useState<File[]>([]);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<ImageData[]>(initialData?.images || []);
   
   const {
     register,
@@ -45,16 +55,29 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
     setValue,
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: initialData || {},
+    defaultValues: initialData,
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setImages(Array.from(e.target.files));
+      const files = Array.from(e.target.files);
+      if (files.length + existingImages.length > 5) {
+        toast.error('You can only upload up to 5 images total');
+        return;
+      }
+      setNewImages(files);
     }
   };
 
-  const onFormSubmit = async (data: ProductFormData) => {
+  const removeExistingImage = (id: number) => {
+    setExistingImages(images => images.filter(img => img.id !== id));
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewImages(images => images.filter((_, i) => i !== index));
+  };
+
+  const onFormSubmit: SubmitHandler<ProductFormData> = async (data) => {
     try {
       setIsLoading(true);
       
@@ -64,22 +87,24 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
       Object.entries(data).forEach(([key, value]) => {
         if (value) {
           formData.append(key, value);
-          console.log(`Appending ${key}:`, value); // Debug log
         }
       });
       
-      // Append images
-      images.forEach((image) => {
+      // Append new images
+      newImages.forEach((image) => {
         formData.append('images', image);
-        console.log('Appending image:', image.name); // Debug log
+      });
+
+      // Append existing image IDs to keep
+      existingImages.forEach((image) => {
+        formData.append('existing_images', image.id.toString());
       });
       
-      console.log('Submitting form data...'); // Debug log
       await onSubmit(formData);
       
       toast.success(initialData ? 'Product updated successfully' : 'Product created successfully');
     } catch (error) {
-      console.error('Form submission error:', error); // Debug log
+      console.error('Form submission error:', error);
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
@@ -231,18 +256,81 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="images">Product Images</Label>
-            <Input
-              id="images"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-            <p className="text-sm text-muted-foreground">
-              Upload up to 5 images. The first image will be used as the primary image.
-            </p>
+          <div className="space-y-4">
+            <Label>Product Images</Label>
+            
+            {/* Existing Images */}
+            {existingImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {existingImages.map((image) => (
+                  <div key={image.id} className="relative group">
+                    <div className="aspect-square relative rounded-md overflow-hidden">
+                      <Image
+                        src={image.url.startsWith('http') ? image.url : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${image.url}`}
+                        alt="Product image"
+                        fill
+                        className="object-cover"
+                      />
+                      {image.isPrimary && (
+                        <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
+                          Primary
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => removeExistingImage(image.id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* New Images Preview */}
+            {newImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {newImages.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <div className="aspect-square relative rounded-md overflow-hidden">
+                      <Image
+                        src={URL.createObjectURL(image)}
+                        alt="New product image"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => removeNewImage(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Image Upload Input */}
+            <div className="space-y-2">
+              <Input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageChange}
+                disabled={existingImages.length + newImages.length >= 5}
+              />
+              <p className="text-sm text-muted-foreground">
+                Upload up to 5 images total. The first image will be used as the primary image.
+              </p>
+            </div>
           </div>
 
           <Button type="submit" disabled={isLoading} className="w-full">

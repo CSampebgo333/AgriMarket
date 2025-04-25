@@ -17,6 +17,7 @@ export default function NewProductPage() {
     setUser(storedUser);
   }, []);
 
+  
   const handleSubmit = async (formData: FormData) => {
     try {
       if (!token) {
@@ -31,13 +32,16 @@ export default function NewProductPage() {
         body: formData,
       });
 
+      console.log(response);
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create product');
       }
 
       const data = await response.json();
-      router.push(`/dashboard/seller/products/${data.productId}`);
+      console.log(data);
+      router.push(`/dashboard/seller/products/${data.product_id}`);
     } catch (error) {
       console.error('Error creating product:', error);
       throw error;

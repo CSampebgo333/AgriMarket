@@ -100,6 +100,7 @@ export const sellerService = {
   },
 };
 
+
 // Product service
 export const productService = {
   getAll: async (params: any) => {
@@ -118,9 +119,58 @@ export const productService = {
     const response = await api.post('/api/products', productData);
     return response.data;
   },
-  update: async (id: number, productData: any) => {
-    const response = await api.put(`/api/products/${id}`, productData);
-    return response.data;
+  update: async (id: number, productData: FormData | any) => {
+    try {
+      // Create a new FormData instance if productData is not already FormData
+      const formData = productData instanceof FormData ? productData : new FormData();
+      if (!(productData instanceof FormData)) {
+        Object.entries(productData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            // Convert value to string if it's not a File or Blob
+            const stringValue = value instanceof File || value instanceof Blob ? value : String(value);
+            formData.append(key, stringValue);
+          }
+        });
+      }
+
+      // Ensure existing_images is properly formatted
+      if (formData.has('existing_images')) {
+        const existingImages = formData.getAll('existing_images');
+        formData.delete('existing_images');
+        formData.append('existing_images', JSON.stringify(existingImages));
+      }
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      };
+
+      console.log('Sending update request with config:', config);
+      console.log('FormData contents:', {
+        id,
+        entries: Array.from(formData.entries()).map(([key, value]) => ({
+          key,
+          value: value instanceof File ? { name: value.name, type: value.type, size: value.size } : value
+        }))
+      });
+      
+      const response = await api.put(`/api/products/${id}`, formData, config);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating product:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers,
+          message: error.message,
+          config: error.config
+        });
+      }
+      throw error;
+    }
   },
   delete: async (id: number) => {
     const response = await api.delete(`/api/products/${id}`);

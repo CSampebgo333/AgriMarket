@@ -18,9 +18,10 @@ interface EditableTableProps {
   }[]
   data: Record<string, any>[]
   onSave?: (index: number, updatedData: Record<string, any>) => void
+  onRowClick?: (rowData: Record<string, any>) => void
 }
 
-export function EditableTable({ columns, data, onSave }: EditableTableProps) {
+export function EditableTable({ columns, data, onSave, onRowClick }: EditableTableProps) {
   const [editingRow, setEditingRow] = useState<number | null>(null)
   const [editedData, setEditedData] = useState<Record<string, any>>({})
 
@@ -103,14 +104,14 @@ export function EditableTable({ columns, data, onSave }: EditableTableProps) {
   }
 
   return (
-    <div className="rounded-md border bg-white dark:bg-card">
+    <div className="rounded-md border bg-white dark:bg-card w-full min-w-[900px]">
       <Table>
         <TableHeader>
           <TableRow>
             {columns.map((column) => (
-              <TableHead key={column.key}>{column.title}</TableHead>
+              <TableHead key={column.key} className="whitespace-nowrap px-3 py-2">{column.title}</TableHead>
             ))}
-            <TableHead className="w-[100px]">Actions</TableHead>
+            <TableHead className="w-[100px] text-right px-3 py-2">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -120,18 +121,22 @@ export function EditableTable({ columns, data, onSave }: EditableTableProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className={`${rowIndex % 2 === 0 ? "bg-white dark:bg-card" : "bg-muted/30 dark:bg-muted/10"}`}
+              className={`${rowIndex % 2 === 0 ? "bg-white dark:bg-card" : "bg-muted/30 dark:bg-muted/10"} ${onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+              onClick={() => onRowClick && onRowClick(row)}
             >
               {columns.map((column) => (
-                <TableCell key={column.key}>{renderCell(column, row, rowIndex)}</TableCell>
+                <TableCell key={column.key} className="whitespace-nowrap px-3 py-2">{renderCell(column, row, rowIndex)}</TableCell>
               ))}
-              <TableCell>
+              <TableCell className="text-right px-3 py-2">
                 {editingRow === rowIndex ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-end gap-2">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleSave(rowIndex)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSave(rowIndex);
+                      }}
                       className="h-8 w-8 cursor-pointer"
                     >
                       <Save className="h-4 w-4 text-green-600" />
@@ -139,7 +144,10 @@ export function EditableTable({ columns, data, onSave }: EditableTableProps) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={handleCancel}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancel();
+                      }}
                       className="h-8 w-8 cursor-pointer"
                     >
                       <X className="h-4 w-4 text-red-600" />
@@ -149,7 +157,10 @@ export function EditableTable({ columns, data, onSave }: EditableTableProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleEdit(rowIndex)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(rowIndex);
+                    }}
                     className="h-8 w-8 cursor-pointer"
                   >
                     <Pencil className="h-4 w-4" />

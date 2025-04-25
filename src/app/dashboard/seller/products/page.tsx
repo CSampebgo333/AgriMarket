@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { EditableTable } from "@/components/dashboard/editable-table"
-import { motion } from "framer-motion"
+// import { motion } from "framer-motion"
 import { Search, Plus, FileDown } from "lucide-react"
 import Link from "next/link"
 import { productService } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation'
 
 interface Product {
   id: string;
@@ -57,6 +58,7 @@ export default function SellerProductsPage() {
   const [productData, setProductData] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { showToast } = useToast()
+  const router = useRouter()
 
   useEffect(() => {
     fetchProducts()
@@ -131,12 +133,16 @@ export default function SellerProductsPage() {
     }
   }
 
+  const handleRowClick = (rowData: Record<string, any>) => {
+    router.push(`/dashboard/seller/products/${rowData.id}`);
+  };
+
   if (isLoading) {
     return <div>Loading products...</div>
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 px-4 w-full max-w-[1400px]">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Products</h1>
@@ -150,16 +156,23 @@ export default function SellerProductsPage() {
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Card className="w-full">
+        <CardHeader className="space-y-4">
+          <div className="flex flex-col space-y-2">
+            <CardTitle>Products</CardTitle>
+            <CardDescription>
+              Manage your products and inventory
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-4 w-full">
+            <div className="relative w-[300px]">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
+                type="search"
                 placeholder="Search products..."
+                className="pl-8 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8"
               />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -190,12 +203,15 @@ export default function SellerProductsPage() {
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
-          <EditableTable
-            data={filteredProducts}
-            columns={columns}
-            onSave={handleSaveProduct}
-          />
+        <CardContent className="p-0">
+          <div className="overflow-x-auto w-full">
+            <EditableTable
+              data={filteredProducts}
+              columns={columns}
+              onSave={handleSaveProduct}
+              onRowClick={handleRowClick}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

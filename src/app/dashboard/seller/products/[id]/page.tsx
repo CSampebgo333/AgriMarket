@@ -1,5 +1,12 @@
 import { ProductDetailClient } from './client';
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  return <ProductDetailClient productId={params.id} />;
+interface ProductDetailPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
+  const { id } = params;
+  return <ProductDetailClient productId={id} />;
 } 
