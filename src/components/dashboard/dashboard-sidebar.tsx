@@ -46,11 +46,6 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
         icon: Home,
       },
       {
-        title: "Profile",
-        href: `/dashboard/${userRole}/profile`,
-        icon: User,
-      },
-      {
         title: "Settings",
         href: `/dashboard/${userRole}/settings`,
         icon: Settings,
@@ -68,6 +63,11 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
           title: "My Orders",
           href: `/dashboard/customer/orders`,
           icon: Package,
+        },
+        {
+          title: "Profile",
+          href: `/dashboard/customer/profile/personal`,
+          icon: User,
         },
         {
           title: "Saved Items",
@@ -92,8 +92,13 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
           icon: ShoppingBag,
         },
         {
+          title: "Personal Profile",
+          href: `/dashboard/${userRole}/profile/personal`,
+          icon: User,
+        },
+        {
           title: "Store Profile",
-          href: `/dashboard/seller/store`,
+          href: `/dashboard/${userRole}/profile/business`,
           icon: Store,
         },
         {
@@ -152,6 +157,8 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
   }
 
   const navItems = getNavItems()
+
+  // <Link href="/dashboard/seller/profile/personal">Personal Profile</Link>
 
   return (
     <Sidebar>

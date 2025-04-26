@@ -93,14 +93,14 @@ export function DashboardHeader({ userRole }: DashboardHeaderProps) {
           <DropdownMenuContent align="end" className="bg-white">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={`/dashboard/${userRole}/profile`}>Profile</Link>
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link href={`/dashboard/${userRole}/profile/personal`}>Profile</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="cursor-pointer">
               <Link href={`/dashboard/${userRole}/settings`}>Settings</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">Log out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

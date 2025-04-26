@@ -1,9 +1,33 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { ProductCatalog } from "@/components/products/product-catalog"
 import { ProductFilters } from "@/components/products/product-filters"
 import { LandingNavbar } from "@/components/layout/landing-navbar"
 import { Footer } from "@/components/layout/footer"
+import { productService } from "@/lib/api"
+import { toast } from "sonner"
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true)
+      const data = await productService.getProducts({})
+      setProducts(data.products || [])
+    } catch (error) {
+      toast.error("Failed to fetch products")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <LandingNavbar />

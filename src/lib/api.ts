@@ -79,27 +79,34 @@ export const authService = {
 // Seller service
 export const sellerService = {
   getProfile: async () => {
-    const response = await api.get('/sellers/profile');
+    const response = await api.get('/api/sellers/profile');
     return response.data;
   },
   updateProfile: async (profileData: any) => {
-    const response = await api.put('/sellers/profile', profileData);
+    const response = await api.put('/api/sellers/profile', profileData);
+    return response.data;
+  },
+  uploadProfileImage: async (formData: FormData) => {
+    const response = await api.post('/api/sellers/profile/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
   getSettings: async () => {
-    const response = await api.get('/sellers/settings');
+    const response = await api.get('/api/sellers/settings');
     return response.data;
   },
   updateSettings: async (settingsData: any) => {
-    const response = await api.put('/sellers/settings', settingsData);
+    const response = await api.put('/api/sellers/settings', settingsData);
     return response.data;
   },
   getStats: async () => {
-    const response = await api.get('/sellers/stats');
+    const response = await api.get('/api/sellers/stats');
     return response.data;
   },
 };
-
 
 // Product service
 export const productService = {
@@ -177,7 +184,7 @@ export const productService = {
     return response.data;
   },
   getProducts: async (filters: any) => {
-    const response = await api.get('/api/products/browse', { params: filters });
+    const response = await api.get('/api/products', { params: filters });
     return response.data;
   },
 };
@@ -259,5 +266,24 @@ export const deliveryService = {
     return response.data;
   },
 };
+
+export const customerService = {
+  getProfile: async () => {
+    const response = await api.get("/api/customers/profile")
+    return response.data
+  },
+  updateProfile: async (profileData: any) => {
+    const response = await api.put("/api/customers/profile", profileData)
+    return response.data
+  },
+  uploadProfileImage: async (formData: FormData) => {
+    const response = await api.post("/api/customers/profile/image", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data
+  },
+}
 
 export default api; 

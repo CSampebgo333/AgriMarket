@@ -319,17 +319,17 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
             )}
 
             {/* Image Upload Input */}
-            <div className="space-y-2">
-              <Input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleImageChange}
+          <div className="space-y-2">
+            <Input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
                 disabled={existingImages.length + newImages.length >= 5}
-              />
-              <p className="text-sm text-muted-foreground">
+            />
+            <p className="text-sm text-muted-foreground">
                 Upload up to 5 images total. The first image will be used as the primary image.
-              </p>
+            </p>
             </div>
           </div>
 

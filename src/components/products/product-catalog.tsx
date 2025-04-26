@@ -10,20 +10,21 @@ import { ShoppingCart, Heart } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { productService } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+const API_URL = "http://localhost:4000";
 
 interface Product {
-  id: number;
+  product_id: number;
   name: string;
   description: string;
   price: number;
-  category: string;
-  image_url: string;
+  category_name: string;
+  primary_image: string;
   seller_id: number;
   seller_name: string;
-  rating: number;
-  stock: number;
+  avg_rating: number;
+  stock_quantity: number;
 }
 
 export function ProductCatalog() {
@@ -32,7 +33,6 @@ export function ProductCatalog() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("featured");
-  const { showToast } = useToast();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -44,6 +44,14 @@ export function ProductCatalog() {
       fetchProducts();
     }
   }, [sortOption, mounted]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      products.forEach(product => {
+        console.log('Image URL:', product.primary_image);
+      });
+    }
+  }, [products]);
 
   const fetchProducts = async () => {
     try {
@@ -57,11 +65,7 @@ export function ProductCatalog() {
       });
       setProducts(data.products || []);
     } catch (error) {
-      showToast({
-        title: "Error",
-        description: "Failed to fetch products",
-        variant: "destructive",
-      });
+      toast.error("Failed to fetch products");
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +75,7 @@ export function ProductCatalog() {
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.seller_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -83,6 +87,7 @@ export function ProductCatalog() {
     return <div>Loading products...</div>;
   }
 
+  console.log(products);
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4">
@@ -105,31 +110,43 @@ export function ProductCatalog() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
-          <Card key={product.id} className="overflow-hidden">
+          
+          <Card key={product.product_id} className="overflow-hidden">
             <div className="aspect-square relative">
-              <img
-                src={product.image_url || "/placeholder.png"}
-                alt={product.name}
-                className="object-cover w-full h-full"
-              />
+                <div className="aspect-square overflow-hidden rounded-lg border">
+                    <div key={product.product_id} className="relative group">
+                      <div className="aspect-square overflow-hidden rounded-lg border">
+                        <img
+                          src={product.primary_image ? `${API_URL}/uploads/${product.primary_image}` : "/placeholder.svg"}
+                          alt={`${product.name} image`}
+                          className="h-full w-full"
+                          onError={(e) => {
+                            console.error("Image failed to load:", e);
+                          }}
+                        />
+                      </div>
+                    </div>
+                </div>
             </div>
             <CardContent className="p-4">
               <div className="space-y-2">
                 <h3 className="font-semibold">{product.name}</h3>
-                <p className="text-sm text-muted-foreground">{product.category}</p>
+                <p className="text-sm text-muted-foreground">{product.category_name}</p>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold">{product.price} XOF</span>
-                  <StarRating rating={product.rating} />
+                  <span className="font-bold">{product.price.toLocaleString()} XOF</span>
+                  <StarRating rating={product.avg_rating} />
                 </div>
                 <p className="text-sm text-muted-foreground">Sold by {product.seller_name}</p>
               </div>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-              <Button className="w-full" variant="outline">
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Add to Cart
+              <Button className="w-full" variant="outline" asChild>
+                <Link href={`/products/${product.product_id}`}>
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  View Details
+                </Link>
               </Button>
             </CardFooter>
           </Card>
