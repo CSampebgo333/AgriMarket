@@ -6,49 +6,13 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Trash2, Plus, Minus } from "lucide-react"
-
-// Sample cart items
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Fonio Grain",
-    price: 2500,
-    quantity: 2,
-    image: "/placeholder.svg?height=80&width=80",
-    seller: "Burkina Organic Farms",
-  },
-  {
-    id: 3,
-    name: "Cassava",
-    price: 1200,
-    quantity: 1,
-    image: "/placeholder.svg?height=80&width=80",
-    seller: "Niger Root Farms",
-  },
-  {
-    id: 7,
-    name: "Hibiscus",
-    price: 3000,
-    quantity: 1,
-    image: "/placeholder.svg?height=80&width=80",
-    seller: "Burkina Herb Gardens",
-  },
-]
+import { useCart } from "@/context/cart-context"
+import Link from "next/link"
 
 export function ShoppingCart() {
-  const [cartItems, setCartItems] = useState(initialCartItems)
+  const { items, removeItem, updateQuantity, subtotal, clearCart } = useCart()
   const [promoCode, setPromoCode] = useState("")
   const [promoApplied, setPromoApplied] = useState(false)
-
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return
-
-    setCartItems((prev) => prev.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)))
-  }
-
-  const removeItem = (id: number) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id))
-  }
 
   const applyPromoCode = () => {
     if (promoCode.trim()) {
@@ -57,12 +21,11 @@ export function ShoppingCart() {
   }
 
   // Calculate totals
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const discount = promoApplied ? Math.round(subtotal * 0.1) : 0 // 10% discount
-  const shippingCost = cartItems.length > 0 ? 1500 : 0
+  const shippingCost = items.length > 0 ? 1500 : 0
   const total = subtotal - discount + shippingCost
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="text-center py-16">
         <div className="flex justify-center mb-4">
@@ -73,7 +36,7 @@ export function ShoppingCart() {
         <h2 className="text-xl font-semibold mb-2">Your cart is empty</h2>
         <p className="text-muted-foreground mb-6">Looks like you haven't added any products to your cart yet.</p>
         <Button asChild>
-          <a href="/products">Browse Products</a>
+          <Link href="/products">Browse Products</Link>
         </Button>
       </div>
     )
@@ -83,18 +46,18 @@ export function ShoppingCart() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2">
         <div className="space-y-4">
-          {cartItems.map((item) => (
-            <div key={item.id} className="flex gap-4 py-4 border-b">
+          {items.map((item) => (
+            <div key={item.product_id} className="flex gap-4 py-4 border-b">
               <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
                 <img src={item.image || "/placeholder.svg"} alt={item.name} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-muted-foreground">{item.seller}</p>
+                <p className="text-sm text-muted-foreground">{item.seller_name}</p>
                 <p className="font-medium mt-1">{item.price.toLocaleString()} XOF</p>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" onClick={() => removeItem(item.product_id)}>
                   <Trash2 className="h-4 w-4" />
                   <span className="sr-only">Remove</span>
                 </Button>
@@ -103,7 +66,7 @@ export function ShoppingCart() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-none"
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
                   >
                     <Minus className="h-3 w-3" />
                     <span className="sr-only">Decrease</span>
@@ -113,7 +76,7 @@ export function ShoppingCart() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-none"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
                   >
                     <Plus className="h-3 w-3" />
                     <span className="sr-only">Increase</span>
@@ -169,7 +132,9 @@ export function ShoppingCart() {
 
               {promoApplied && <div className="text-sm text-green-600">Promo code applied successfully!</div>}
 
-              <Button className="w-full">Proceed to Checkout</Button>
+              <Button className="w-full" asChild>
+                <Link href="/checkout">Proceed to Checkout</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>

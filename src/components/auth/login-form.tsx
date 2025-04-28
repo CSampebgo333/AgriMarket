@@ -54,7 +54,7 @@ export function LoginForm() {
           router.push("/dashboard/logistician")
           break
         case "Admin":
-          router.push("/dashboard/admin")
+          router.push("/admin/users")
           break
         default:
           router.push("/")

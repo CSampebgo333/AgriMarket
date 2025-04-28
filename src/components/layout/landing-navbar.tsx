@@ -5,9 +5,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ShoppingCart, Menu, X } from "lucide-react"
+import { useCart } from "@/context/cart-context"
 
 export function LandingNavbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { totalItems } = useCart()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -35,8 +37,8 @@ export function LandingNavbar() {
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="relative cursor-pointer">
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full cart-badge text-[10px] font-medium">
-                0
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-white text-[10px] font-medium">
+                {totalItems}
               </span>
             </Button>
           </Link>

@@ -9,6 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+/back-end-bridge_market/node_modules
 
 # testing
 /coverage

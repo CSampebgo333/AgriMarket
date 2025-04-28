@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,63 +26,78 @@ const categories = [
   "Nuts & Seeds",
 ]
 
-const regions = ["All Regions", "Central", "Northern", "Southern", "Eastern", "Western"]
+const countries = ["All Countries", "Niger", "Burkina Faso", "Mali"]
 
-export function ProductFilters() {
+interface ProductFiltersProps {
+  onFiltersChange: (filters: {
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    country_of_origin?: string;
+  }) => void;
+}
+
+export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [selectedRegions, setSelectedRegions] = useState<string[]>([])
-  const [priceRange, setPriceRange] = useState([0, 100])
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([])
+  const [priceRange, setPriceRange] = useState([0, 100000])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedRating, setSelectedRating] = useState<number>(0)
   const router = useRouter()
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
-    )
+    const newCategories = category === "All Categories" ? [] : [category]
+    setSelectedCategories(newCategories)
+    applyFilters({
+      category: category === "All Categories" ? undefined : category,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      country_of_origin: selectedCountries.length > 0 && selectedCountries[0] !== "All Countries" ? selectedCountries[0] : undefined
+    })
   }
 
-  const handleRegionChange = (region: string) => {
-    setSelectedRegions((prev) => (prev.includes(region) ? prev.filter((r) => r !== region) : [...prev, region]))
+  const handleCountryChange = (country: string) => {
+    const newCountries = country === "All Countries" ? [] : [country]
+    setSelectedCountries(newCountries)
+    applyFilters({
+      category: selectedCategories.length > 0 ? selectedCategories[0] : undefined,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      country_of_origin: country === "All Countries" ? undefined : country
+    })
   }
 
   const handlePriceChange = (values: number[]) => {
     setPriceRange(values)
+    applyFilters({
+      category: selectedCategories.length > 0 ? selectedCategories[0] : undefined,
+      minPrice: values[0],
+      maxPrice: values[1],
+      country_of_origin: selectedCountries.length > 0 && selectedCountries[0] !== "All Countries" ? selectedCountries[0] : undefined
+    })
   }
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
   }
 
-  // Add a function to handle filter application
-  const applyFilters = () => {
-    // Apply the current filter state to the products
-    const queryParams = new URLSearchParams()
-
-    if (selectedCategory) {
-      queryParams.set("category", selectedCategory)
-    }
-
-    if (priceRange[0] !== 0 || priceRange[1] !== 100) {
-      queryParams.set("minPrice", priceRange[0].toString())
-      queryParams.set("maxPrice", priceRange[1].toString())
-    }
-
-    if (selectedRating > 0) {
-      queryParams.set("rating", selectedRating.toString())
-    }
-
-    // Navigate to the products page with the filters applied
-    const queryString = queryParams.toString()
-    router.push(`/products${queryString ? "?" + queryString : ""}`)
+  const applyFilters = (filters: {
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    country_of_origin?: string;
+  }) => {
+    onFiltersChange(filters)
   }
 
   const clearFilters = () => {
     setSelectedCategories([])
-    setSelectedRegions([])
-    setPriceRange([0, 100])
+    setSelectedCountries([])
+    setPriceRange([0, 100000])
     setSearchTerm("")
+    setSelectedCategory(null)
+    onFiltersChange({})
   }
 
   return (
@@ -131,25 +145,25 @@ export function ProductFilters() {
         </div>
 
         <div>
-          <label className="text-sm font-medium">Regions</label>
+          <label className="text-sm font-medium">Countries</label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 className="w-full justify-between mt-1 bg-white hover:bg-gray-50 hover:text-primary"
               >
-                {selectedRegions.length ? `${selectedRegions.length} selected` : "Select regions"}
+                {selectedCountries.length ? selectedCountries[0] : "Select country"}
                 <ChevronDown className="h-4 w-4 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[200px] bg-white">
-              {regions.map((region) => (
+              {countries.map((country) => (
                 <DropdownMenuCheckboxItem
-                  key={region}
-                  checked={selectedRegions.includes(region)}
-                  onCheckedChange={() => handleRegionChange(region)}
+                  key={country}
+                  checked={selectedCountries.includes(country)}
+                  onCheckedChange={() => handleCountryChange(country)}
                 >
-                  {region}
+                  {country}
                 </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuContent>
@@ -158,12 +172,12 @@ export function ProductFilters() {
 
         <div>
           <label className="text-sm font-medium">
-            Price Range: {priceRange[0] * 1000} - {priceRange[1] * 1000} XOF
+            Price Range: {priceRange[0].toLocaleString()} - {priceRange[1].toLocaleString()} XOF
           </label>
           <Slider
-            defaultValue={[0, 100]}
-            max={100}
-            step={1}
+            defaultValue={[0, 100000]}
+            max={100000}
+            step={1000}
             value={priceRange}
             onValueChange={handlePriceChange}
             className="mt-2"
@@ -171,11 +185,11 @@ export function ProductFilters() {
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Button className="flex-1 bg-primary hover:bg-primary/90 cursor-pointer" onClick={applyFilters}>
-            Apply Filters
-          </Button>
-          <Button variant="outline" onClick={clearFilters} className="flex-1 hover:text-primary hover:border-primary">
-            Clear
+          <Button 
+            className="flex-1 bg-primary hover:bg-primary/90 cursor-pointer"
+            onClick={clearFilters}
+          >
+            Clear Filters
           </Button>
         </div>
       </div>
