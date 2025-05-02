@@ -1,12 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { ProductCatalog } from "@/components/products/product-catalog"
 import { ProductFilters } from "@/components/products/product-filters"
 import { LandingNavbar } from "@/components/layout/landing-navbar"
 import { Footer } from "@/components/layout/footer"
-import { productService } from "@/lib/api"
-import { toast } from "sonner"
 
 interface Filters {
   category?: string;

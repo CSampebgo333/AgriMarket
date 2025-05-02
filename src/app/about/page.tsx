@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import { ArrowRight, Globe, Heart, Leaf, Shield } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 // Updated team members data with the requested names
 const teamMembers = [
@@ -85,7 +86,7 @@ export default function AboutPage() {
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">Our Mission</h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8">
                 AgriMarket is on a mission to transform food systems in West Africa by connecting farmers directly with
-                buyers, eliminating middlemen, and ensuring fair prices for all. We're building a more sustainable,
+                buyers, eliminating middlemen, and ensuring fair prices for all. We&apos;re building a more sustainable,
                 transparent, and efficient agricultural marketplace.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -142,10 +143,12 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                <img
+                <Image
                   src="/images/img1.jpg"
                   alt="Farmers in West Africa"
-                  className="w-full h-full object-cover rounded-lg"
+                  fill
+                  className="object-cover rounded-lg"
+                  priority
                 />
               </motion.div>
             </div>
@@ -217,10 +220,11 @@ export default function AboutPage() {
                   <Card className="h-full bg-white dark:bg-card">
                     <CardContent className="p-0">
                       <div className="aspect-square relative">
-                        <img
+                        <Image
                           src={member.image || "/placeholder.svg"}
                           alt={member.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                         />
                       </div>
                       <div className="p-4">
@@ -247,7 +251,13 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                <img src="/images/img1.jpg" alt="AgriMarket Impact" className="w-full h-full object-cover rounded-lg" />
+                <Image
+                  src="/images/img1.jpg"
+                  alt="AgriMarket Impact"
+                  fill
+                  className="object-cover rounded-lg"
+                  priority
+                />
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -258,28 +268,18 @@ export default function AboutPage() {
                 <h2 className="text-3xl font-bold tracking-tight mb-6">Our Impact</h2>
                 <div className="space-y-4">
                   <p>
-                    Since our launch, AgriMarket has made a significant impact on agricultural communities across West
-                    Africa:
+                    Since our launch, we&apos;ve helped thousands of farmers across West Africa connect with buyers and
+                    get better prices for their crops. We&apos;ve also helped buyers access fresh, high-quality produce
+                    directly from farmers.
                   </p>
-                  <ul className="space-y-2 list-disc pl-5">
-                    <li>Connected over 5,000 farmers to direct market opportunities</li>
-                    <li>Increased farmer incomes by an average of 35%</li>
-                    <li>Reduced post-harvest losses by 25% through improved market access</li>
-                    <li>Created 200+ jobs in rural communities</li>
-                    <li>Facilitated the trade of more than 10,000 tons of local food crops</li>
-                  </ul>
                   <p>
-                    We're proud of what we've accomplished, but we're just getting started. Our goal is to expand to
-                    more countries in West Africa and continue building a more resilient and equitable food system for
-                    the region.
+                    Our platform has facilitated the trade of over 10,000 tons of local food crops, supporting
+                    sustainable agriculture and food security in the region.
                   </p>
-                  <div className="mt-6">
-                    <Button asChild className="cursor-pointer">
-                      <Link href="/contact">
-                        Partner With Us <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
+                  <p>
+                    We&apos;re proud of our impact, but we know there&apos;s still much more to do. We&apos;re committed to
+                    continuing to grow and improve our platform to better serve our community.
+                  </p>
                 </div>
               </motion.div>
             </div>
@@ -298,8 +298,8 @@ export default function AboutPage() {
             >
               <h2 className="text-3xl font-bold tracking-tight mb-4">Join the AgriMarket Community</h2>
               <p className="text-lg mb-8">
-                Whether you're a farmer looking to sell your crops, a buyer seeking quality produce, or an investor
-                interested in supporting our mission, we'd love to hear from you.
+                Whether you&apos;re a farmer looking to sell your crops, a buyer seeking quality produce, or an investor
+                interested in supporting our mission, we&apos;d love to hear from you.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" variant="secondary" asChild className="cursor-pointer">

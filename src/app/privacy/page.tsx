@@ -13,9 +13,9 @@ export default function PrivacyPage() {
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h2 className="text-xl font-semibold mt-8 mb-4">1. Introduction</h2>
             <p>
-              AgriMarket ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains
+              AgriMarket (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is committed to protecting your privacy. This Privacy Policy explains
               how we collect, use, disclose, and safeguard your information when you use our website, mobile
-              application, and services (collectively, the "Service").
+              application, and services (collectively, the &quot;Service&quot;).
             </p>
             <p>
               Please read this Privacy Policy carefully. If you do not agree with the terms of this Privacy Policy,
@@ -114,11 +114,11 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p>
-              To exercise these rights, please contact us using the information provided in the "Contact Us" section
+              To exercise these rights, please contact us using the information provided in the &quot;Contact Us&quot; section
               below.
             </p>
 
-            <h2 className="text-xl font-semibold mt-8 mb-4">7. Children's Privacy</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-4">7. Children&apos;s Privacy</h2>
             <p>
               The Service is not intended for individuals under the age of 18. We do not knowingly collect personal
               information from children under 18. If you are a parent or guardian and you are aware that your child has
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold mt-8 mb-4">8. Changes to This Privacy Policy</h2>
             <p>
               We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new
-              Privacy Policy on this page and updating the "Last updated" date at the top of this Privacy Policy. You
+              Privacy Policy on this page and updating the &quot;Last updated&quot; date at the top of this Privacy Policy. You
               are advised to review this Privacy Policy periodically for any changes.
             </p>
 

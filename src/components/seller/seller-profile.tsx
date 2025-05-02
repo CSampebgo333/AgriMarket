@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,29 +9,37 @@ import { useToast } from "@/hooks/use-toast"
 import { sellerService } from "@/lib/api"
 
 interface SellerProfile {
-  business_name: string
-  business_email: string
-  business_phone: string
-  business_address: string
-  business_description: string
+  store_name: string;
+  store_description: string;
+  store_banner: string;
+  store_logo: string;
+  store_location: string;
+  store_country: string;
+  store_city: string;
+  store_address: string;
+  store_hours: {
+    [key: string]: {
+      open: string;
+      close: string;
+      closed: boolean;
+    };
+  };
+  shipping_policy: string;
+  return_policy: string;
 }
 
 export function SellerProfile() {
   const [profile, setProfile] = useState<SellerProfile | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const { toast } = useToast()
+  const { showToast } = useToast()
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const data = await sellerService.getProfile()
       setProfile(data)
-    } catch (error) {
-      toast({
+    } catch {
+      showToast({
         title: "Error",
         description: "Failed to fetch profile",
         variant: "destructive",
@@ -39,7 +47,11 @@ export function SellerProfile() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [showToast])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,13 +59,13 @@ export function SellerProfile() {
 
     try {
       await sellerService.updateProfile(profile)
-      toast({
+      showToast({
         title: "Success",
         description: "Profile updated successfully",
       })
       setIsEditing(false)
-    } catch (error) {
-      toast({
+    } catch {
+      showToast({
         title: "Error",
         description: "Failed to update profile",
         variant: "destructive",
@@ -81,8 +93,8 @@ export function SellerProfile() {
               <Label htmlFor="business_name">Business Name</Label>
               <Input
                 id="business_name"
-                value={profile.business_name}
-                onChange={(e) => setProfile({ ...profile, business_name: e.target.value })}
+                value={profile.store_name}
+                onChange={(e) => setProfile({ ...profile, store_name: e.target.value })}
                 disabled={!isEditing}
               />
             </div>
@@ -91,8 +103,8 @@ export function SellerProfile() {
               <Input
                 id="business_email"
                 type="email"
-                value={profile.business_email}
-                onChange={(e) => setProfile({ ...profile, business_email: e.target.value })}
+                value={profile.store_description}
+                onChange={(e) => setProfile({ ...profile, store_description: e.target.value })}
                 disabled={!isEditing}
               />
             </div>
@@ -102,8 +114,8 @@ export function SellerProfile() {
             <Label htmlFor="business_phone">Business Phone</Label>
             <Input
               id="business_phone"
-              value={profile.business_phone}
-              onChange={(e) => setProfile({ ...profile, business_phone: e.target.value })}
+              value={profile.store_banner}
+              onChange={(e) => setProfile({ ...profile, store_banner: e.target.value })}
               disabled={!isEditing}
             />
           </div>
@@ -112,8 +124,8 @@ export function SellerProfile() {
             <Label htmlFor="business_address">Business Address</Label>
             <Input
               id="business_address"
-              value={profile.business_address}
-              onChange={(e) => setProfile({ ...profile, business_address: e.target.value })}
+              value={profile.store_logo}
+              onChange={(e) => setProfile({ ...profile, store_logo: e.target.value })}
               disabled={!isEditing}
             />
           </div>
@@ -122,8 +134,8 @@ export function SellerProfile() {
             <Label htmlFor="business_description">Business Description</Label>
             <Input
               id="business_description"
-              value={profile.business_description}
-              onChange={(e) => setProfile({ ...profile, business_description: e.target.value })}
+              value={profile.store_location}
+              onChange={(e) => setProfile({ ...profile, store_location: e.target.value })}
               disabled={!isEditing}
             />
           </div>

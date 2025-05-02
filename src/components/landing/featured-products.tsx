@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { StarRating } from "@/components/ui/star-rating"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
+import Image from "next/image"  
 import { productService } from "@/lib/api"
 import { toast } from "sonner"
 
@@ -36,7 +37,8 @@ export function FeaturedProducts() {
         })
         setProducts(data.products || [])
       } catch (error) {
-        toast.error("Failed to fetch products")
+        const errorMessage = error instanceof Error ? error.message : "Failed to fetch products"
+        toast.error(errorMessage)
       } finally {
         setIsLoading(false)
       }
@@ -95,7 +97,7 @@ export function FeaturedProducts() {
             >
               <Card>
                 <div className="aspect-square relative">
-                  <img
+                  <Image
                     src={product.primary_image ? `${API_URL}/uploads/${product.primary_image}` : "/placeholder.svg"}
                     alt={product.name}
                     className="object-cover w-full h-full"

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { StarRating } from "@/components/ui/star-rating"
 import { ShoppingCart } from "lucide-react"
+import Image from "next/image"
+
 
 // Update the recommended products data to include the correct image paths
 const recommendedProducts = [
@@ -57,7 +59,7 @@ export function RecommendedProducts() {
           className="overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-lg"
         >
           <div className="aspect-square relative">
-            <img src={product.image || "/placeholder.svg"} alt={product.name} className="object-cover w-full h-full" />
+            <Image src={product.image || "/placeholder.svg"} alt={product.name} className="object-cover w-full h-full" />
             <Badge className="absolute top-2 right-2">{product.category}</Badge>
           </div>
           <CardContent className="p-4">

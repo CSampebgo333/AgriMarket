@@ -12,8 +12,20 @@ import { Separator } from "@/components/ui/separator"
 import { motion } from "framer-motion"
 import { Save } from "lucide-react"
 
+interface Settings {
+  language: "english" | "french" | "arabic"
+  currency: "xof" | "usd" | "eur"
+  theme: "light" | "dark" | "system"
+  emailNotifications: boolean
+  smsNotifications: boolean
+  orderUpdates: boolean
+  promotions: boolean
+  newsletter: boolean
+  twoFactorAuth: boolean
+}
+
 export default function SettingsPage() {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<Settings>({
     language: "english",
     currency: "xof",
     theme: "light",
@@ -25,7 +37,7 @@ export default function SettingsPage() {
     twoFactorAuth: false,
   })
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: keyof Settings, value: Settings[keyof Settings]) => {
     setSettings((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -53,7 +65,7 @@ export default function SettingsPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="language">Language</Label>
-                  <Select value={settings.language} onValueChange={(value) => handleChange("language", value)}>
+                  <Select value={settings.language} onValueChange={(value) => handleChange("language", value as "english" | "french" | "arabic")}>
                     <SelectTrigger id="language">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -66,7 +78,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency</Label>
-                  <Select value={settings.currency} onValueChange={(value) => handleChange("currency", value)}>
+                  <Select value={settings.currency} onValueChange={(value) => handleChange("currency", value as "xof" | "usd" | "eur")}>
                     <SelectTrigger id="currency">
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
@@ -79,7 +91,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="theme">Theme</Label>
-                  <Select value={settings.theme} onValueChange={(value) => handleChange("theme", value)}>
+                  <Select value={settings.theme} onValueChange={(value) => handleChange("theme", value as "light" | "dark" | "system")}>
                     <SelectTrigger id="theme">
                       <SelectValue placeholder="Select theme" />
                     </SelectTrigger>

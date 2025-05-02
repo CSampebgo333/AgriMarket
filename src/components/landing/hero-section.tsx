@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import Image from "next/image"
+
 
 export function HeroSection() {
   return (
@@ -43,7 +45,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg" />
-            <img
+            <Image
               src="/images/img1.jpg"
               alt="African farmers with crops"
               className="w-full h-full object-cover rounded-lg"

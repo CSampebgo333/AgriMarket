@@ -1,36 +1,33 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useRef, useCallback } from "react"
+    // import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent} from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { customerService } from "@/lib/api"
 import { Camera, Save, Edit, User } from "lucide-react"
 import { motion } from "framer-motion"
 import { Separator } from "@/components/ui/separator"
 
-function CustomerProfilePage() {
-  const router = useRouter()
+interface CustomerProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  profileImage: string;
+}
+
+export default function PersonalProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
-  const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    profileImage: "",
-  })
+  const [profile, setProfile] = useState<CustomerProfile | null>(null)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const data = await customerService.getProfile()
       // Ensure the profile image URL is complete
@@ -38,47 +35,37 @@ function CustomerProfilePage() {
         data.profileImage = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${data.profileImage}`
       }
       setProfile(data)
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        toast.error("Please log in to view your profile")
-        router.push("/login")
-      } else {
-        toast.error(error.response?.data?.message || "Failed to load profile")
-      }
-      console.error("Error fetching profile:", error)
+    } catch {
+      toast.error("Failed to fetch profile")
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setProfile((prev) => ({ ...prev, [name]: value }))
+    setProfile((prev) => {
+      if (!prev) return null
+      return {
+        ...prev,
+        [name]: value,
+      }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      // Basic validation
-      if (!profile.firstName || !profile.lastName || !profile.email) {
-        toast.error("Please fill in all required fields")
-        return
-      }
+    if (!profile) return
 
+    try {
       await customerService.updateProfile(profile)
       toast.success("Profile updated successfully")
-      setIsEditing(false)
-      router.refresh()
-    } catch (error: any) {
-      if (error.response?.status === 400) {
-        toast.error(error.response.data.message)
-      } else if (error.response?.status === 401) {
-        toast.error("Please log in to update your profile")
-        router.push("/login")
-      } else {
-        toast.error("Failed to update profile")
-      }
-      console.error("Error updating profile:", error)
+    } catch {
+      toast.error("Failed to update profile")
     }
   }
 
@@ -88,19 +75,12 @@ function CustomerProfilePage() {
 
     try {
       const formData = new FormData()
-      formData.append('image', file)
-
-      const response = await customerService.uploadProfileImage(formData)
-      // Ensure the image URL is complete
-      const imageUrl = response.imageUrl.startsWith('http') 
-        ? response.imageUrl 
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${response.imageUrl}`
-      
-      setProfile(prev => ({ ...prev, profileImage: imageUrl }))
+      formData.append("image", file)
+      await customerService.uploadProfileImage(formData)
       toast.success("Profile image updated successfully")
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to upload image")
-      console.error("Error uploading image:", error)
+      fetchProfile()
+    } catch {
+      toast.error("Failed to upload profile image")
     }
   }
 
@@ -143,7 +123,7 @@ function CustomerProfilePage() {
               <div className="relative group">
                 <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
                   <AvatarImage 
-                    src={profile.profileImage} 
+                    src={profile?.profileImage} 
                     alt="Profile" 
                     className="object-cover"
                     onError={(e) => {
@@ -152,7 +132,7 @@ function CustomerProfilePage() {
                     }}
                   />
                   <AvatarFallback className="bg-primary/10 text-primary">
-                    {profile.firstName?.[0]}{profile.lastName?.[0] || <User className="h-8 w-8" />}
+                    {profile?.firstName?.[0]}{profile?.lastName?.[0] || <User className="h-8 w-8" />}
                   </AvatarFallback>
                 </Avatar>
                 <Button
@@ -173,10 +153,10 @@ function CustomerProfilePage() {
               </div>
               <div className="space-y-2 text-center sm:text-left">
                 <h3 className="text-2xl font-semibold">
-                  {profile.firstName} {profile.lastName}
+                  {profile?.firstName} {profile?.lastName}
                 </h3>
                 <p className="text-sm text-muted-foreground">Customer</p>
-                <p className="text-sm text-muted-foreground">{profile.email}</p>
+                <p className="text-sm text-muted-foreground">{profile?.email}</p>
               </div>
             </div>
           </div>
@@ -191,7 +171,7 @@ function CustomerProfilePage() {
                   <Input
                     id="firstName"
                     name="firstName"
-                    value={profile.firstName}
+                    value={profile?.firstName}
                     onChange={handleChange}
                     disabled={!isEditing}
                     className={!isEditing ? "bg-muted/50" : ""}
@@ -202,7 +182,7 @@ function CustomerProfilePage() {
                   <Input
                     id="lastName"
                     name="lastName"
-                    value={profile.lastName}
+                    value={profile?.lastName}
                     onChange={handleChange}
                     disabled={!isEditing}
                     className={!isEditing ? "bg-muted/50" : ""}
@@ -214,7 +194,7 @@ function CustomerProfilePage() {
                     id="email"
                     name="email"
                     type="email"
-                    value={profile.email}
+                    value={profile?.email}
                     onChange={handleChange}
                     disabled={!isEditing}
                     className={!isEditing ? "bg-muted/50" : ""}
@@ -225,7 +205,7 @@ function CustomerProfilePage() {
                   <Input
                     id="phone"
                     name="phone"
-                    value={profile.phone}
+                    value={profile?.phone}
                     onChange={handleChange}
                     disabled={!isEditing}
                     className={!isEditing ? "bg-muted/50" : ""}
@@ -254,6 +234,4 @@ function CustomerProfilePage() {
       </div>
     </motion.div>
   )
-}
-
-export default CustomerProfilePage 
+} 

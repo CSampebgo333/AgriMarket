@@ -13,7 +13,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Administrator Dashboard</h2>
-          <p className="text-muted-foreground">Welcome back! Here's an overview of the marketplace performance.</p>
+          <p className="text-muted-foreground">Welcome back! Here&apos;s an overview of the marketplace performance.</p>
         </div>
         <Button className="w-full md:w-auto">
           <Download className="mr-2 h-4 w-4" /> Export Reports

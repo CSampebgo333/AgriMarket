@@ -69,6 +69,7 @@ class Product {
       search,
       sort_by = "created_at",
       sort_order = "DESC",
+      exclude_id,
     } = options
 
     try {
@@ -77,65 +78,65 @@ class Product {
       const limitNum = Number(limit)
       const offset = (pageNum - 1) * limitNum
     
-    // Build the query
-    let sql = `
-      SELECT p.*, c.name as category_name, 
-             u.user_name as seller_name,
-             (SELECT image_path FROM product_images WHERE product_id = p.product_id AND is_primary = TRUE LIMIT 1) as primary_image,
-             (SELECT AVG(rating) FROM reviews WHERE product_id = p.product_id) as avg_rating,
-             (SELECT COUNT(*) FROM reviews WHERE product_id = p.product_id) as review_count
-      FROM products p
-      JOIN categories c ON p.category_id = c.category_id
-      JOIN users u ON p.seller_id = u.user_id
+      // Build the query
+      let sql = `
+        SELECT p.*, c.name as category_name, 
+               u.user_name as seller_name,
+               (SELECT image_path FROM product_images WHERE product_id = p.product_id AND is_primary = TRUE LIMIT 1) as primary_image,
+               (SELECT AVG(rating) FROM reviews WHERE product_id = p.product_id) as avg_rating,
+               (SELECT COUNT(*) FROM reviews WHERE product_id = p.product_id) as review_count
+        FROM products p
+        JOIN categories c ON p.category_id = c.category_id
+        JOIN users u ON p.seller_id = u.user_id
+        WHERE 1=1
       `
     
-    // Build WHERE clause
-      const whereConditions = []
+      // Build WHERE clause
       const params = []
     
-    if (category_id) {
-        whereConditions.push("p.category_id = ?")
+      if (category_id) {
+        sql += " AND p.category_id = ?"
         params.push(Number(category_id))
-    }
+      }
     
-      // Only add seller_id to the query if it's a valid number
       if (seller_id && !isNaN(seller_id)) {
-        whereConditions.push("p.seller_id = ?")
+        sql += " AND p.seller_id = ?"
         params.push(Number(seller_id))
-    }
+      }
     
       if (min_price !== undefined && !isNaN(min_price)) {
-        whereConditions.push("p.price >= ?")
+        sql += " AND p.price >= ?"
         params.push(Number(min_price))
-    }
+      }
     
       if (max_price !== undefined && !isNaN(max_price)) {
-        whereConditions.push("p.price <= ?")
+        sql += " AND p.price <= ?"
         params.push(Number(max_price))
-    }
+      }
     
-    if (country_of_origin) {
-        whereConditions.push("p.country_of_origin = ?")
-        params.push(String(country_of_origin))
-    }
+      if (country_of_origin) {
+        sql += " AND p.country_of_origin = ?"
+        params.push(country_of_origin)
+      }
     
-    if (featured !== undefined) {
-        whereConditions.push("p.featured = ?")
-        params.push(featured ? 1 : 0) // Convert boolean to 1/0 for MySQL
-    }
+      if (featured !== undefined) {
+        sql += " AND p.featured = ?"
+        params.push(featured ? 1 : 0)
+      }
     
-    if (search) {
-        whereConditions.push("(p.name LIKE ? OR p.description LIKE ? OR c.name LIKE ?)")
+      if (search) {
+        sql += " AND (p.name LIKE ? OR p.description LIKE ? OR c.name LIKE ?)"
         const searchPattern = `%${String(search)}%`
         params.push(searchPattern, searchPattern, searchPattern)
-    }
+      }
+
+      if (exclude_id) {
+        sql += " AND p.product_id != ?"
+        params.push(Number(exclude_id))
+      }
     
-    if (whereConditions.length > 0) {
-        sql += " WHERE " + whereConditions.join(" AND ")
-    }
-    
-    // Add sorting
-      const validSortColumns = ["created_at", "price", "name", "avg_rating"]
+      // Add sorting
+      const validSortColumns = ["created_at", "price", "name", "avg_rating", "RAND()"]
       const validSortOrders = ["ASC", "DESC"]
     
       const sortColumn = validSortColumns.includes(sort_by) ? sort_by : "created_at"
@@ -143,37 +144,75 @@ class Product {
     
       if (sortColumn === "avg_rating") {
         sql += " ORDER BY avg_rating " + sortOrder
-    } else {
+      } else if (sortColumn === "RAND()") {
+        sql += " ORDER BY RAND()"
+      } else {
         sql += ` ORDER BY p.${sortColumn} ${sortOrder}`
-    }
+      }
     
-    // Add pagination
+      // Add pagination
       sql += " LIMIT ? OFFSET ?"
-
-      // Execute query with all parameters
-      const queryParams = [...params, limitNum, offset]
+      params.push(limitNum, offset)
 
       // Execute the query
-      const products = await db.query(sql, queryParams)
+      const products = await db.query(sql, params)
     
-    // Get total count for pagination
-      let countSql = "SELECT COUNT(*) as total FROM products p"
+      // Get total count for pagination
+      let countSql = "SELECT COUNT(*) as total FROM products p WHERE 1=1"
+      const countParams = []
     
-    if (whereConditions.length > 0) {
-        countSql += " WHERE " + whereConditions.join(" AND ")
-    }
+      if (category_id) {
+        countSql += " AND p.category_id = ?"
+        countParams.push(Number(category_id))
+      }
     
-      const countResult = await db.getOne(countSql, params)
+      if (seller_id && !isNaN(seller_id)) {
+        countSql += " AND p.seller_id = ?"
+        countParams.push(Number(seller_id))
+      }
+    
+      if (min_price !== undefined && !isNaN(min_price)) {
+        countSql += " AND p.price >= ?"
+        countParams.push(Number(min_price))
+      }
+    
+      if (max_price !== undefined && !isNaN(max_price)) {
+        countSql += " AND p.price <= ?"
+        countParams.push(Number(max_price))
+      }
+    
+      if (country_of_origin) {
+        countSql += " AND p.country_of_origin = ?"
+        countParams.push(country_of_origin)
+      }
+    
+      if (featured !== undefined) {
+        countSql += " AND p.featured = ?"
+        countParams.push(featured ? 1 : 0)
+      }
+    
+      if (search) {
+        countSql += " AND (p.name LIKE ? OR p.description LIKE ?)"
+        const searchPattern = `%${String(search)}%`
+        countParams.push(searchPattern, searchPattern)
+      }
+
+      if (exclude_id) {
+        countSql += " AND p.product_id != ?"
+        countParams.push(Number(exclude_id))
+      }
+    
+      const countResult = await db.getOne(countSql, countParams)
       const total = Number(countResult.total)
     
-    return {
-      products,
-      pagination: {
-        total,
+      return {
+        products,
+        pagination: {
+          total,
           page: pageNum,
           limit: limitNum,
           pages: Math.ceil(total / limitNum),
-        },
+        }
       }
     } catch (error) {
       console.error("Get products error:", error)

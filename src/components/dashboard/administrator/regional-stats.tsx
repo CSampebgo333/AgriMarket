@@ -1,6 +1,5 @@
 "use client"
 
-import { useTheme } from "next-themes"
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
 // Sample regional data
@@ -11,7 +10,6 @@ const data = [
 ]
 
 export function RegionalStats() {
-  const { theme } = useTheme()
 
   return (
     <div className="space-y-4">

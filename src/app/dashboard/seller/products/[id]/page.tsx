@@ -1,12 +1,8 @@
 import { ProductDetailClient } from './client';
 
-interface ProductDetailPageProps {
-  params: {
-    id: string;
-  };
-}
 
-export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { id } = params;
+
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id;
   return <ProductDetailClient productId={id} />;
 } 

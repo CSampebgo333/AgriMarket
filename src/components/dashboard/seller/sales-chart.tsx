@@ -18,7 +18,7 @@ export function SalesChart() {
   const { theme } = useTheme()
 
   // Determine colors based on theme
-  const textColor = theme === "dark" ? "#f8fafc" : "#0f172a"
+  // const textColor = theme === "dark" ? "#f8fafc" : "#0f172a"
   const gridColor = theme === "dark" ? "#334155" : "#e2e8f0"
   const lineColor = "#8b5cf6" // Purple color for the line
 
@@ -54,7 +54,7 @@ export function SalesChart() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[0.70rem] uppercase text-muted-foreground">Sales</span>
-                        <span className="font-bold">{payload[0]?.value.toLocaleString()} XOF</span>
+                        <span className="font-bold">{payload[0]?.value?.toLocaleString() ?? 0} XOF</span>
                       </div>
                     </div>
                   </div>

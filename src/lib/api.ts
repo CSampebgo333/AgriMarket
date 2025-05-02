@@ -48,6 +48,77 @@ interface LoginCredentials {
   password: string;
 }
 
+interface RegisterData {
+  user_name: string;
+  email: string;
+  password: string;
+  user_type: string;
+  phone_number: string;
+  country: string;
+}
+
+interface SellerProfile {
+  store_name: string;
+  store_description: string;
+  store_banner: string;
+  store_logo: string;
+  store_location: string;
+  store_country: string;
+  store_city: string;
+  store_address: string;
+  store_hours: {
+    [key: string]: {
+      open: string;
+      close: string;
+      closed: boolean;
+    };
+  };
+  shipping_policy: string;
+  return_policy: string;
+}
+
+interface SellerSettings {
+  id: number;
+  seller_id: number;
+  notification_preferences: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+  };
+  order_notifications: boolean;
+  review_notifications: boolean;
+  marketing_emails: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// interface Product {
+//   id: number;
+//   name: string;
+//   description: string;
+//   price: number;
+//   category_id: number;
+//   seller_id: number;
+//   images: string[];
+//   stock: number;
+//   created_at: string;
+//   updated_at: string;
+// }
+
+interface ProductFilters {
+  sort_by?: string;
+  sort_order?: string;
+  category?: string;
+  min_price?: number;
+  max_price?: number;
+  country_of_origin?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  seller_id?: number;
+  exclude_id?: string;
+}
+
 // Auth service
 export const authService = {
   login: async (credentials: LoginCredentials) => {
@@ -58,7 +129,7 @@ export const authService = {
     }
     return response.data;
   },
-  register: async (userData: any) => {
+  register: async (userData: RegisterData) => {
     const response = await api.post('/api/auth/register', userData);
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', response.data.token);
@@ -82,7 +153,7 @@ export const sellerService = {
     const response = await api.get('/api/sellers/profile');
     return response.data;
   },
-  updateProfile: async (profileData: any) => {
+  updateProfile: async (profileData: SellerProfile) => {
     const response = await api.put('/api/sellers/profile', profileData);
     return response.data;
   },
@@ -98,7 +169,7 @@ export const sellerService = {
     const response = await api.get('/api/sellers/settings');
     return response.data;
   },
-  updateSettings: async (settingsData: any) => {
+  updateSettings: async (settingsData: SellerSettings) => {
     const response = await api.put('/api/sellers/settings', settingsData);
     return response.data;
   },
@@ -110,7 +181,7 @@ export const sellerService = {
 
 // Product service
 export const productService = {
-  getAll: async (params: any) => {
+  getAll: async (params: ProductFilters) => {
     const response = await api.get('/api/products', { params });
     return response.data;
   },
@@ -122,48 +193,24 @@ export const productService = {
     const response = await api.get(`/api/products/category/${categoryId}`);
     return response.data;
   },
-  create: async (productData: any) => {
-    const response = await api.post('/api/products', productData);
+  create: async (productData: FormData) => {
+    const response = await api.post('/api/products', productData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
-  update: async (id: number, productData: FormData | any) => {
+  update: async (id: number, productData: FormData) => {
     try {
-      // Create a new FormData instance if productData is not already FormData
-      const formData = productData instanceof FormData ? productData : new FormData();
-      if (!(productData instanceof FormData)) {
-        Object.entries(productData).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            // Convert value to string if it's not a File or Blob
-            const stringValue = value instanceof File || value instanceof Blob ? value : String(value);
-            formData.append(key, stringValue);
-          }
-        });
-      }
-
-      // Ensure existing_images is properly formatted
-      if (formData.has('existing_images')) {
-        const existingImages = formData.getAll('existing_images');
-        formData.delete('existing_images');
-        formData.append('existing_images', JSON.stringify(existingImages));
-      }
-
       const config = {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       };
-
-      console.log('Sending update request with config:', config);
-      console.log('FormData contents:', {
-        id,
-        entries: Array.from(formData.entries()).map(([key, value]) => ({
-          key,
-          value: value instanceof File ? { name: value.name, type: value.type, size: value.size } : value
-        }))
-      });
       
-      const response = await api.put(`/api/products/${id}`, formData, config);
+      const response = await api.put(`/api/products/${id}`, productData, config);
       return response.data;
     } catch (error) {
       console.error('Error updating product:', error);
@@ -183,7 +230,7 @@ export const productService = {
     const response = await api.delete(`/api/products/${id}`);
     return response.data;
   },
-  getProducts: async (filters: any) => {
+  getProducts: async (filters: ProductFilters) => {
     const response = await api.get('/api/products', { params: filters });
     return response.data;
   },
@@ -198,23 +245,23 @@ export const categoryService = {
 // Order service
 export const orderService = {
   getAll: async () => {
-    const response = await api.get('/orders');
+    const response = await api.get('/api/orders');
     return response.data;
   },
   getById: async (id: number) => {
-    const response = await api.get(`/orders/${id}`);
+    const response = await api.get(`/api/orders/${id}`);
     return response.data;
   },
-  create: async (orderData: any) => {
-    const response = await api.post('/orders', orderData);
+  create: async (orderData: FormData) => {
+    const response = await api.post('/api/orders', orderData);
     return response.data;
   },
-  update: async (id: number, orderData: any) => {
-    const response = await api.put(`/orders/${id}`, orderData);
+  update: async (id: number, orderData: { [key: string]: string | number | boolean }) => {
+    const response = await api.put(`/api/orders/${id}`, orderData);
     return response.data;
   },
   delete: async (id: number) => {
-    const response = await api.delete(`/orders/${id}`);
+    const response = await api.delete(`/api/orders/${id}`);
     return response.data;
   },
 };
@@ -229,11 +276,11 @@ export const paymentService = {
     const response = await api.get(`/payments/${id}`);
     return response.data;
   },
-  create: async (paymentData: any) => {
+  create: async (paymentData: PaymentData) => {
     const response = await api.post('/payments', paymentData);
     return response.data;
   },
-  update: async (id: number, paymentData: any) => {
+  update: async (id: number, paymentData: PaymentData) => {
     const response = await api.put(`/payments/${id}`, paymentData);
     return response.data;
   },
@@ -253,11 +300,11 @@ export const deliveryService = {
     const response = await api.get(`/deliveries/${id}`);
     return response.data;
   },
-  create: async (deliveryData: any) => {
+  create: async (deliveryData: DeliveryData) => {
     const response = await api.post('/deliveries', deliveryData);
     return response.data;
   },
-  update: async (id: number, deliveryData: any) => {
+  update: async (id: number, deliveryData: DeliveryData) => {
     const response = await api.put(`/deliveries/${id}`, deliveryData);
     return response.data;
   },
@@ -272,7 +319,7 @@ export const customerService = {
     const response = await api.get("/api/customers/profile")
     return response.data
   },
-  updateProfile: async (profileData: any) => {
+  updateProfile: async (profileData: CustomerProfile) => {
     const response = await api.put("/api/customers/profile", profileData)
     return response.data
   },
@@ -284,6 +331,39 @@ export const customerService = {
     })
     return response.data
   },
+}
+
+interface CustomerProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  profileImage: string;
+}
+
+interface PaymentData {
+  amount: number;
+  currency: string;
+  payment_method: string;
+  status: string;
+  order_id: number;
+  customer_id: number;
+}
+
+interface DeliveryData {
+  order_id: number;
+  status: string;
+  tracking_number: string;
+  carrier: string;
+  estimated_delivery: string;
+  actual_delivery?: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postal_code: string;
+  };
 }
 
 export default api; 

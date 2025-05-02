@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { productService } from '@/lib/api';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id
     const formData = await request.formData();
     
     // Log the received form data
@@ -57,16 +55,17 @@ export async function PUT(
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const id = (await params).id
     const token = request.headers.get('Authorization')?.split(' ')[1];
     
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${params.id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },

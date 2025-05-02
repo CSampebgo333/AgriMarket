@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -8,7 +8,7 @@ import { SellerOverview } from "@/components/dashboard/seller/seller-overview"
 import { RecentSellerOrders } from "@/components/dashboard/seller/recent-seller-orders"
 import { ProductInventory } from "@/components/dashboard/seller/product-inventory"
 import { SalesChart } from "@/components/dashboard/seller/sales-chart"
-import { Plus, ArrowRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { sellerService } from "@/lib/api"
 import { useToast } from "@/components/ui/use-toast"
@@ -23,11 +23,7 @@ export default function SellerDashboardPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await sellerService.getProfile()
@@ -47,7 +43,11 @@ export default function SellerDashboardPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -58,7 +58,7 @@ export default function SellerDashboardPage() {
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Welcome back, {profile.first_name}!</h1>
-          <p className="text-muted-foreground">Here's an overview of your store performance.</p>
+          <p className="text-muted-foreground">Here&apos;s an overview of your store performance.</p>
         </div>
         <div className="flex items-center space-x-4">
           <Avatar className="h-10 w-10">

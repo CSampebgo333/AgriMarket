@@ -8,9 +8,10 @@ import { Separator } from "@/components/ui/separator"
 import { Trash2, Plus, Minus } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import Link from "next/link"
+import Image from "next/image"  
 
 export function ShoppingCart() {
-  const { items, removeItem, updateQuantity, subtotal, clearCart } = useCart()
+  const { items, removeItem, updateQuantity, subtotal } = useCart()
   const [promoCode, setPromoCode] = useState("")
   const [promoApplied, setPromoApplied] = useState(false)
 
@@ -34,7 +35,7 @@ export function ShoppingCart() {
           </div>
         </div>
         <h2 className="text-xl font-semibold mb-2">Your cart is empty</h2>
-        <p className="text-muted-foreground mb-6">Looks like you haven't added any products to your cart yet.</p>
+        <p className="text-muted-foreground mb-6">Looks like you haven&apos;t added any products to your cart yet.</p>
         <Button asChild>
           <Link href="/products">Browse Products</Link>
         </Button>
@@ -49,7 +50,7 @@ export function ShoppingCart() {
           {items.map((item) => (
             <div key={item.product_id} className="flex gap-4 py-4 border-b">
               <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
-                <img src={item.image || "/placeholder.svg"} alt={item.name} className="w-full h-full object-cover" />
+                <Image src={item.image || "/placeholder.svg"} alt={item.name} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold">{item.name}</h3>

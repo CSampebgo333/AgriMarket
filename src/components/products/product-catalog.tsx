@@ -1,18 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { StarRating } from "@/components/ui/star-rating"
-import { ShoppingCart, Heart } from "lucide-react"
+import { ShoppingCart } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { productService } from "@/lib/api"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useCart } from "@/context/cart-context"
+import Image from "next/image"
 const API_URL = "http://localhost:4000";
 
 interface Product {
@@ -48,25 +47,7 @@ export function ProductCatalog({ filters = {} }: ProductCatalogProps) {
   const [sortOption, setSortOption] = useState("featured");
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted) {
-      fetchProducts();
-    }
-  }, [sortOption, mounted, filters]);
-
-  useEffect(() => {
-    if (products.length > 0) {
-      products.forEach(product => {
-        console.log('Image URL:', product.primary_image);
-      });
-    }
-  }, [products]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await productService.getProducts({
@@ -87,7 +68,17 @@ export function ProductCatalog({ filters = {} }: ProductCatalogProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sortOption, filters]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchProducts();
+    }
+  }, [sortOption, mounted, filters, fetchProducts]);
 
   // Filter products based on search query
   const filteredProducts = products.filter(
@@ -137,7 +128,6 @@ export function ProductCatalog({ filters = {} }: ProductCatalogProps) {
     return <div>Loading products...</div>;
   }
 
-  console.log(products);
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4">
@@ -145,17 +135,17 @@ export function ProductCatalog({ filters = {} }: ProductCatalogProps) {
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-          className="md:w-64"
+            className="md:w-64"
           />
           <Select value={sortOption} onValueChange={setSortOption}>
-          <SelectTrigger className="md:w-48">
+            <SelectTrigger className="md:w-48">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
-          <SelectContent>
+            <SelectContent>
               <SelectItem value="featured">Featured</SelectItem>
               <SelectItem value="price-low">Price: Low to High</SelectItem>
               <SelectItem value="price-high">Price: High to Low</SelectItem>
-            <SelectItem value="rating">Rating</SelectItem>
+              <SelectItem value="rating">Rating</SelectItem>
             </SelectContent>
           </Select>
       </div>
@@ -167,10 +157,11 @@ export function ProductCatalog({ filters = {} }: ProductCatalogProps) {
               <Card key={product.product_id} className="overflow-hidden">
                 <div className="aspect-square relative">
                   <div className="aspect-square overflow-hidden rounded-lg border">
-                    <img
+                    <Image
                       src={product.primary_image ? `${API_URL}/uploads/${product.primary_image}` : "/placeholder.svg"}
                       alt={`${product.name} image`}
-                      className="h-full w-full object-cover"
+                      fill
+                      className="object-cover"
                       onError={(e) => {
                         console.error("Image failed to load:", e);
                         (e.target as HTMLImageElement).src = "/placeholder.svg";
@@ -199,17 +190,12 @@ export function ProductCatalog({ filters = {} }: ProductCatalogProps) {
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       {isInCart ? "In Cart" : "Add to Cart"}
                     </Button>
-                    <Button className="flex-1" variant="outline" asChild>
-                      <Link href={`/products/${product.product_id}`}>
-                        View Details
-                      </Link>
-                    </Button>
                   </div>
                 </CardFooter>
               </Card>
             );
           })}
-        </div>
+      </div>
     </div>
   );
 }

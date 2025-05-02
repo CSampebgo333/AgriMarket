@@ -54,7 +54,7 @@ const ratingDistribution = {
 
 const totalReviews = Object.values(ratingDistribution).reduce((a, b) => a + b, 0)
 
-export function ProductReviews({ productId }: { productId: string }) {
+export function ProductReviews() {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

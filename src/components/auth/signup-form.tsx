@@ -11,10 +11,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { authService } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
+interface ApiError {
+  response?: {
+    data?: {
+      error?: string
+    }
+  }
+  message?: string
+}
+
+interface FormData {
+  user_name: string
+  email: string
+  password: string
+  confirmPassword: string
+  user_type: "Customer" | "Seller" | "Logistician"
+  phone_number: string
+  country: string
+}
+
+type RegistrationData = Omit<FormData, 'confirmPassword'>
+
 export function SignupForm() {
   const router = useRouter()
   const { showToast } = useToast()
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     user_name: "",
     email: "",
     password: "",
@@ -26,7 +47,7 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -42,9 +63,23 @@ export function SignupForm() {
       return
     }
 
+    // Validate password strength
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long")
+      setIsLoading(false)
+      return
+    }
+
     try {
-      // Remove confirmPassword before sending to API
-      const { confirmPassword, ...registrationData } = formData
+      // Create registration data without confirmPassword
+      const registrationData: RegistrationData = {
+        user_name: formData.user_name,
+        email: formData.email,
+        password: formData.password,
+        user_type: formData.user_type,
+        phone_number: formData.phone_number,
+        country: formData.country
+      }
       
       const response = await authService.register(registrationData)
       
@@ -75,11 +110,15 @@ export function SignupForm() {
         default:
           router.push("/")
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to create account")
+    } catch (err: unknown) {
+      const errorMessage = 
+        (err as ApiError)?.response?.data?.error || 
+        (err as Error)?.message || 
+        "Failed to create account"
+      setError(errorMessage)
       showToast({
         title: "Error",
-        description: err.response?.data?.error || "Failed to create account",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {

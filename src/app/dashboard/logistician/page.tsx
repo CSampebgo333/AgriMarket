@@ -13,7 +13,7 @@ export default function LogisticianDashboard() {
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Logistician Dashboard</h2>
-          <p className="text-muted-foreground">Welcome back! Here's an overview of your delivery assignments.</p>
+          <p className="text-muted-foreground">Welcome back! Here&apos;s an overview of your delivery assignments.</p>
         </div>
         <Button className="w-full md:w-auto">
           <MapPin className="mr-2 h-4 w-4" /> Update Location

@@ -12,7 +12,7 @@ export default function CustomerDashboard() {
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Customer Dashboard</h2>
-          <p className="text-muted-foreground">Welcome back! Here's an overview of your activity.</p>
+          <p className="text-muted-foreground">Welcome to your customer dashboard. Here you can manage your orders, profile, and settings.</p>
         </div>
         <Link href="/products">
           <Button className="w-full md:w-auto">

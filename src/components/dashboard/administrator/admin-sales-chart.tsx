@@ -18,7 +18,7 @@ export function AdminSalesChart() {
   const { theme } = useTheme()
 
   // Determine colors based on theme
-  const textColor = theme === "dark" ? "#f8fafc" : "#0f172a"
+  // const textColor = theme === "dark" ? "#f8fafc" : "#0f172a"
   const gridColor = theme === "dark" ? "#334155" : "#e2e8f0"
 
   // Country colors

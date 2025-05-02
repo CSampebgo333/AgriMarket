@@ -5,14 +5,23 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getToken, getUser } from '@/lib/auth';
 
+interface User {
+  id: string;
+  email: string;
+  user_type: 'Seller' | 'Customer' | 'Admin';
+  name?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export default function NewProductPage() {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const storedToken = getToken();
-    const storedUser = getUser();
+    const storedUser = getUser() as User | null;
     setToken(storedToken);
     setUser(storedUser);
   }, []);

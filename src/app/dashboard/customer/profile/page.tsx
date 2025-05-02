@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,69 +9,57 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { customerService } from "@/lib/api"
 
+interface CustomerProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  profileImage: string;
+}
+
 export default function CustomerProfilePage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
-  const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    profileImage: "",
-  })
+  const [profile, setProfile] = useState<CustomerProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const data = await customerService.getProfile()
       setProfile(data)
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        toast.error("Please log in to view your profile")
-        router.push("/login")
-      } else {
-        toast.error(error.response?.data?.message || "Failed to load profile")
-      }
-      console.error("Error fetching profile:", error)
+    } catch {
+      toast.error("Failed to fetch profile")
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setProfile((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setProfile((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      // Basic validation
-      if (!profile.firstName || !profile.lastName || !profile.email) {
-        toast.error("Please fill in all required fields")
-        return
-      }
+    if (!profile) return
 
+    try {
       await customerService.updateProfile(profile)
       toast.success("Profile updated successfully")
-      router.refresh()
-    } catch (error: any) {
-      if (error.response?.status === 400) {
-        toast.error(error.response.data.message)
-      } else if (error.response?.status === 401) {
-        toast.error("Please log in to update your profile")
-        router.push("/login")
-      } else {
-        toast.error("Failed to update profile")
-      }
-      console.error("Error updating profile:", error)
+    } catch {
+      toast.error("Failed to update profile")
     }
   }
 
-  if (loading) {
+  if (isLoading) {
     return <div>Loading...</div>
   }
 
@@ -87,16 +74,16 @@ export default function CustomerProfilePage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={profile.profileImage} alt="Profile" />
+                <AvatarImage src={profile?.profileImage} alt="Profile" />
                 <AvatarFallback>
-                  {profile.firstName?.[0]}{profile.lastName?.[0]}
+                  {profile?.firstName?.[0]}{profile?.lastName?.[0]}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="text-lg font-medium">
-                  {profile.firstName} {profile.lastName}
+                  {profile?.firstName} {profile?.lastName}
                 </h3>
-                <p className="text-sm text-muted-foreground">{profile.email}</p>
+                <p className="text-sm text-muted-foreground">{profile?.email}</p>
               </div>
             </div>
 
@@ -106,7 +93,7 @@ export default function CustomerProfilePage() {
                 <Input
                   id="firstName"
                   name="firstName"
-                  value={profile.firstName}
+                  value={profile?.firstName}
                   onChange={handleChange}
                 />
               </div>
@@ -115,7 +102,7 @@ export default function CustomerProfilePage() {
                 <Input
                   id="lastName"
                   name="lastName"
-                  value={profile.lastName}
+                  value={profile?.lastName}
                   onChange={handleChange}
                 />
               </div>
@@ -125,7 +112,7 @@ export default function CustomerProfilePage() {
                   id="email"
                   name="email"
                   type="email"
-                  value={profile.email}
+                  value={profile?.email}
                   onChange={handleChange}
                 />
               </div>
@@ -134,7 +121,7 @@ export default function CustomerProfilePage() {
                 <Input
                   id="phone"
                   name="phone"
-                  value={profile.phone}
+                  value={profile?.phone}
                   onChange={handleChange}
                 />
               </div>

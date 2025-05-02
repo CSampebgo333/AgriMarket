@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +19,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Image from "next/image";
+
 
 interface Product {
   id: number;
@@ -49,24 +51,7 @@ export function ProductDetailClient({ productId }: ProductDetailClientProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!productId) {
-      setError("Product ID is missing");
-      setIsLoading(false);
-      return;
-    }
-
-    const id = parseInt(productId);
-    if (isNaN(id)) {
-      setError("Invalid product ID");
-      setIsLoading(false);
-      return;
-    }
-
-    fetchProduct(id);
-  }, [productId]);
-
-  const fetchProduct = async (id: number) => {
+  const fetchProduct = useCallback(async (id: number) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -88,7 +73,24 @@ export function ProductDetailClient({ productId }: ProductDetailClientProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    if (!productId) {
+      setError("Product ID is missing");
+      setIsLoading(false);
+      return;
+    }
+
+    const id = parseInt(productId);
+    if (isNaN(id)) {
+      setError("Invalid product ID");
+      setIsLoading(false);
+      return;
+    }
+
+    fetchProduct(id);
+  }, [productId, fetchProduct]);
 
   const handleDelete = async () => {
     try {
@@ -229,8 +231,8 @@ export function ProductDetailClient({ productId }: ProductDetailClientProps) {
                   /> */}
                   {product.images.map((image) => (
                     <div key={image.image_id} className="relative group">
-                      <div className="aspect-square overflow-hidden rounded-lg border">
-                        <img
+                        <div className="aspect-square overflow-hidden rounded-lg border">
+                        <Image
                           src={image.image_path.startsWith('http') ? image.image_path : `${API_URL}/uploads/${image.image_path}`}
                           alt={`${product.name} image`}
                           className="h-full w-full"

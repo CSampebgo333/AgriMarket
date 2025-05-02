@@ -59,15 +59,20 @@ export function LoginForm() {
         default:
           router.push("/")
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
-      console.error('Error response:', err.response);
-      console.error('Error message:', err.message);
       
-      setError(err.response?.data?.error || "Invalid email or password. Please try again.")
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : "Invalid email or password. Please try again.";
+      
+      const apiError = err as { response?: { data?: { error?: string } } };
+      const apiErrorMessage = apiError.response?.data?.error;
+      
+      setError(apiErrorMessage || errorMessage)
       showToast({
         title: "Error",
-        description: err.response?.data?.error || "Failed to login. Please check your credentials and try again.",
+        description: apiErrorMessage || "Failed to login. Please check your credentials and try again.",
         variant: "destructive",
       })
     } finally {

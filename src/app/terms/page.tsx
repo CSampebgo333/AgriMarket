@@ -13,28 +13,28 @@ export default function TermsPage() {
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h2 className="text-xl font-semibold mt-8 mb-4">1. Introduction</h2>
             <p>
-              Welcome to AgriMarket. These Terms of Service ("Terms") govern your use of the AgriMarket website, mobile
-              application, and services (collectively, the "Service") operated by AgriMarket ("we," "us," or "our"). By
+              Welcome to AgriMarket. These Terms of Service (&quot;Terms&quot;) govern your use of the AgriMarket website, mobile
+              application, and services (collectively, the &quot;Service&quot;) operated by AgriMarket (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). By
               accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the
               Terms, you may not access the Service.
             </p>
 
             <h2 className="text-xl font-semibold mt-8 mb-4">2. Definitions</h2>
             <p>
-              <strong>"User"</strong> refers to any individual who accesses or uses the Service, including buyers,
+              <strong>&quot;User&quot;</strong> refers to any individual who accesses or uses the Service, including buyers,
               sellers, logisticians, and administrators.
             </p>
             <p>
-              <strong>"Buyer"</strong> refers to a User who purchases products through the Service.
+              <strong>&quot;Buyer&quot;</strong> refers to a User who purchases products through the Service.
             </p>
             <p>
-              <strong>"Seller"</strong> refers to a User who offers products for sale through the Service.
+              <strong>&quot;Seller&quot;</strong> refers to a User who offers products for sale through the Service.
             </p>
             <p>
-              <strong>"Logistician"</strong> refers to a User who provides logistics services through the Service.
+              <strong>&quot;Logistician&quot;</strong> refers to a User who provides logistics services through the Service.
             </p>
             <p>
-              <strong>"Content"</strong> refers to text, images, photos, audio, video, and all other forms of data or
+              <strong>&quot;Content&quot;</strong> refers to text, images, photos, audio, video, and all other forms of data or
               communication posted on or transmitted through the Service.
             </p>
 
@@ -55,15 +55,15 @@ export default function TermsPage() {
             <ul className="list-disc pl-6 mb-4">
               <li>In any way that violates any applicable national or international law or regulation.</li>
               <li>
-                To transmit, or procure the sending of, any advertising or promotional material, including any "junk
-                mail," "chain letter," "spam," or any other similar solicitation.
+                To transmit, or procure the sending of, any advertising or promotional material, including any &quot;junk
+                mail,&quot; &quot;chain letter,&quot; &quot;spam,&quot; or any other similar solicitation.
               </li>
               <li>
                 To impersonate or attempt to impersonate AgriMarket, an AgriMarket employee, another user, or any other
                 person or entity.
               </li>
               <li>
-                To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the Service, or
+                To engage in any other conduct that restricts or inhibits anyone&apos;s use or enjoyment of the Service, or
                 which, as determined by us, may harm AgriMarket or users of the Service or expose them to liability.
               </li>
             </ul>
@@ -118,7 +118,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold mt-8 mb-4">9. Changes to Terms</h2>
             <p>
               We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision
-              is material, we will try to provide at least 30 days' notice prior to any new terms taking effect. What
+              is material, we will try to provide at least 30 days&apos; notice prior to any new terms taking effect. What
               constitutes a material change will be determined at our sole discretion.
             </p>
             <p>

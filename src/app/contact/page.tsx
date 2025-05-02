@@ -64,7 +64,7 @@ export default function ContactPage() {
             >
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">Get in Touch</h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8">
-                Have questions about AgriMarket? Want to partner with us? We'd love to hear from you.
+                Have questions about AgriMarket? Want to partner with us? We&apos;d love to hear from you.
               </p>
             </motion.div>
           </div>
@@ -92,7 +92,7 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold">Our Locations</h3>
                       <p className="text-muted-foreground">
-                        Headquarters: 123 Avenue de l'Indépendance, Ouagadougou, Burkina Faso
+                        Headquarters: 123 Avenue de l&apos;Indépendance, Ouagadougou, Burkina Faso
                       </p>
                       <p className="text-muted-foreground">Regional Offices: Bamako (Mali), Niamey (Niger)</p>
                     </div>
@@ -138,7 +138,7 @@ export default function ContactPage() {
                         </div>
                         <h3 className="text-xl font-semibold mb-2">Message Sent!</h3>
                         <p className="text-muted-foreground mb-6">
-                          Thank you for contacting us. We'll get back to you shortly.
+                          Thank you for contacting us. We&apos;ll get back to you shortly.
                         </p>
                         <Button onClick={() => setIsSubmitted(false)} className="cursor-pointer">
                           Send Another Message
@@ -200,14 +200,14 @@ export default function ContactPage() {
                           <Label htmlFor="message">Message</Label>
                           <Textarea
                             id="message"
-                            placeholder="Your message here..."
-                            rows={5}
+                            placeholder="Tell us more about your inquiry..."
                             value={formData.message}
                             onChange={(e) => handleChange("message", e.target.value)}
                             required
+                            className="min-h-[150px]"
                           />
                         </div>
-                        <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting}>
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
                           {isSubmitting ? "Sending..." : "Send Message"}
                         </Button>
                       </form>

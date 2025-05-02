@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +12,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useRouter } from "next/navigation"
 
 const categories = [
   "All Categories",
@@ -42,9 +41,6 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState([0, 100000])
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [selectedRating, setSelectedRating] = useState<number>(0)
-  const router = useRouter()
 
   const handleCategoryChange = (category: string) => {
     const newCategories = category === "All Categories" ? [] : [category]
@@ -96,7 +92,6 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
     setSelectedCountries([])
     setPriceRange([0, 100000])
     setSearchTerm("")
-    setSelectedCategory(null)
     onFiltersChange({})
   }
 

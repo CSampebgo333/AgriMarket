@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { productService } from '@/lib/api';
+import Image from 'next/image';       
 
 interface Product {
   id: number;
@@ -36,18 +37,15 @@ export function BrowseProducts() {
     maxPrice: 1000,
     sortBy: 'price_asc',
   });
-  const { toast } = useToast();
+  const { showToast } = useToast();
 
-  useEffect(() => {
-    fetchProducts();
-  }, [filters]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const data = await productService.getProducts(filters);
       setProducts(data);
-    } catch (error) {
-      toast({
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      showToast({
         title: 'Error',
         description: 'Failed to fetch products',
         variant: 'destructive',
@@ -55,7 +53,11 @@ export function BrowseProducts() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [filters, showToast]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleFilterChange = (key: keyof Filters, value: string | number) => {
     setFilters({ ...filters, [key]: value });
@@ -139,7 +141,7 @@ export function BrowseProducts() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <img
+                <Image
                   src={product.image_url}
                   alt={product.name}
                   className="w-full h-48 object-cover rounded-lg"

@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     
     // Convert FormData to a format the backend expects
-    const data = Object.fromEntries(formData.entries());
+    // const data = Object.fromEntries(formData.entries());
     const images = formData.getAll('images');
     
     // Create a new FormData for the backend request

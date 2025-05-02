@@ -5,50 +5,56 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Check, Pencil, Save, X } from 'lucide-react'
+import {  Pencil, Save} from 'lucide-react'
 import { motion } from "framer-motion"
 
-interface EditableTableProps {
-  columns: {
-    key: string
-    title: string
-    type?: "text" | "number" | "select" | "date"
-    options?: { value: string; label: string }[]
-    editable?: boolean
-  }[]
-  data: Record<string, any>[]
-  onSave?: (index: number, updatedData: Record<string, any>) => void
-  onRowClick?: (rowData: Record<string, any>) => void
+interface Column {
+  key: string;
+  title: string;
+  type?: "text" | "number" | "date" | "select";
+  options?: { value: string; label: string }[];
+  editable?: boolean;
 }
 
-export function EditableTable({ columns, data, onSave, onRowClick }: EditableTableProps) {
-  const [editingRow, setEditingRow] = useState<number | null>(null)
-  const [editedData, setEditedData] = useState<Record<string, any>>({})
+interface EditableTableProps<T extends { [key: string]: string | number | boolean }> {
+  columns: Column[];
+  data: T[];
+  onSave?: (index: number, updatedData: T) => void;
+  onRowClick?: (rowData: T) => void;
+}
 
-  const handleEdit = (index: number) => {
-    setEditingRow(index)
-    setEditedData(data[index])
-  }
+export function EditableTable<T extends { [key: string]: string | number | boolean }>({ 
+  columns, 
+  data, 
+  onSave, 
+  onRowClick 
+}: EditableTableProps<T>) {
+  const [editingCell, setEditingCell] = useState<{ rowIndex: number; columnKey: string } | null>(null);
+  const [editedValue, setEditedValue] = useState<string>("");
 
-  const handleCancel = () => {
-    setEditingRow(null)
-    setEditedData({})
-  }
-
-  const handleSave = (index: number) => {
-    if (onSave) {
-      onSave(index, editedData)
+  const handleCellClick = (rowIndex: number, columnKey: string, value: string | number | boolean) => {
+    if (columns.find(col => col.key === columnKey)?.editable) {
+      setEditingCell({ rowIndex, columnKey });
+      setEditedValue(typeof value === 'boolean' ? value.toString() : value.toString());
     }
-    setEditingRow(null)
-    setEditedData({})
-  }
+  };
 
-  const handleChange = (key: string, value: any) => {
-    setEditedData((prev) => ({ ...prev, [key]: value }))
-  }
+  const handleSave = (rowIndex: number, columnKey: string) => {
+    if (onSave) {
+      const updatedData = { ...data[rowIndex], [columnKey]: editedValue };
+      onSave(rowIndex, updatedData as T);
+    }
+    setEditingCell(null);
+  };
 
-  const renderCell = (column: EditableTableProps["columns"][0], rowData: Record<string, any>, rowIndex: number) => {
-    const isEditing = editingRow === rowIndex && column.editable !== false
+  const handleRowClick = (rowData: T) => {
+    if (onRowClick) {
+      onRowClick(rowData);
+    }
+  };
+
+  const renderCell = (column: Column, rowData: T, rowIndex: number) => {
+    const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.columnKey === column.key
 
     if (!isEditing) {
       return rowData[column.key]
@@ -58,8 +64,8 @@ export function EditableTable({ columns, data, onSave, onRowClick }: EditableTab
       case "select":
         return (
           <Select
-            value={editedData[column.key] || ""}
-            onValueChange={(value) => handleChange(column.key, value)}
+            value={editedValue}
+            onValueChange={setEditedValue}
           >
             <SelectTrigger className="h-8 w-full">
               <SelectValue placeholder="Select..." />
@@ -77,8 +83,8 @@ export function EditableTable({ columns, data, onSave, onRowClick }: EditableTab
         return (
           <Input
             type="number"
-            value={editedData[column.key] || ""}
-            onChange={(e) => handleChange(column.key, e.target.value)}
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
             className="h-8 w-full"
           />
         )
@@ -86,8 +92,8 @@ export function EditableTable({ columns, data, onSave, onRowClick }: EditableTab
         return (
           <Input
             type="date"
-            value={editedData[column.key] || ""}
-            onChange={(e) => handleChange(column.key, e.target.value)}
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
             className="h-8 w-full"
           />
         )
@@ -95,8 +101,8 @@ export function EditableTable({ columns, data, onSave, onRowClick }: EditableTab
         return (
           <Input
             type="text"
-            value={editedData[column.key] || ""}
-            onChange={(e) => handleChange(column.key, e.target.value)}
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
             className="h-8 w-full"
           />
         )
@@ -122,35 +128,24 @@ export function EditableTable({ columns, data, onSave, onRowClick }: EditableTab
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
               className={`${rowIndex % 2 === 0 ? "bg-white dark:bg-card" : "bg-muted/30 dark:bg-muted/10"} ${onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}`}
-              onClick={() => onRowClick && onRowClick(row)}
+              onClick={() => handleRowClick(row)}
             >
               {columns.map((column) => (
                 <TableCell key={column.key} className="whitespace-nowrap px-3 py-2">{renderCell(column, row, rowIndex)}</TableCell>
               ))}
               <TableCell className="text-right px-3 py-2">
-                {editingRow === rowIndex ? (
+                {editingCell?.rowIndex === rowIndex && editingCell?.columnKey === columns[rowIndex].key ? (
                   <div className="flex items-center justify-end gap-2">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleSave(rowIndex);
+                        handleSave(rowIndex, columns[rowIndex].key);
                       }}
                       className="h-8 w-8 cursor-pointer"
                     >
                       <Save className="h-4 w-4 text-green-600" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancel();
-                      }}
-                      className="h-8 w-8 cursor-pointer"
-                    >
-                      <X className="h-4 w-4 text-red-600" />
                     </Button>
                   </div>
                 ) : (
@@ -159,7 +154,7 @@ export function EditableTable({ columns, data, onSave, onRowClick }: EditableTab
                     size="icon"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleEdit(rowIndex);
+                      handleCellClick(rowIndex, columns[rowIndex].key, row[columns[rowIndex].key]);
                     }}
                     className="h-8 w-8 cursor-pointer"
                   >

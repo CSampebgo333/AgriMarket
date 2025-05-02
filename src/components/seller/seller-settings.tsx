@@ -1,37 +1,40 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+// import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { sellerService } from "@/lib/api"
 
 interface SellerSettings {
-  notification_email: boolean
-  notification_sms: boolean
-  auto_approve_orders: boolean
-  currency: string
-  timezone: string
+  id: number;
+  seller_id: number;
+  notification_preferences: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+  };
+  order_notifications: boolean;
+  review_notifications: boolean;
+  marketing_emails: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export function SellerSettings() {
   const [settings, setSettings] = useState<SellerSettings | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const { toast } = useToast()
+  const { showToast } = useToast()
 
-  useEffect(() => {
-    fetchSettings()
-  }, [])
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const data = await sellerService.getSettings()
       setSettings(data)
-    } catch (error) {
-      toast({
+    } catch {
+      showToast({
         title: "Error",
         description: "Failed to fetch settings",
         variant: "destructive",
@@ -39,7 +42,11 @@ export function SellerSettings() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [showToast])
+
+  useEffect(() => {
+    fetchSettings()
+  }, [fetchSettings])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,12 +54,12 @@ export function SellerSettings() {
 
     try {
       await sellerService.updateSettings(settings)
-      toast({
+      showToast({
         title: "Success",
         description: "Settings updated successfully",
       })
-    } catch (error) {
-      toast({
+    } catch {
+      showToast({
         title: "Error",
         description: "Failed to update settings",
         variant: "destructive",
@@ -81,20 +88,18 @@ export function SellerSettings() {
               <Label htmlFor="notification_email">Email Notifications</Label>
               <Switch
                 id="notification_email"
-                checked={settings.notification_email}
+                checked={settings.notification_preferences.email}
                 onCheckedChange={(checked) =>
-                  setSettings({ ...settings, notification_email: checked })
-                }
+                  setSettings({ ...settings, notification_preferences: { ...settings.notification_preferences, email: checked } })}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="notification_sms">SMS Notifications</Label>
               <Switch
                 id="notification_sms"
-                checked={settings.notification_sms}
+                checked={settings.notification_preferences.sms}
                 onCheckedChange={(checked) =>
-                  setSettings({ ...settings, notification_sms: checked })
-                }
+                  setSettings({ ...settings, notification_preferences: { ...settings.notification_preferences, sms: checked } })}
               />
             </div>
           </div>
@@ -105,9 +110,9 @@ export function SellerSettings() {
               <Label htmlFor="auto_approve_orders">Auto Approve Orders</Label>
               <Switch
                 id="auto_approve_orders"
-                checked={settings.auto_approve_orders}
+                checked={settings.order_notifications}
                 onCheckedChange={(checked) =>
-                  setSettings({ ...settings, auto_approve_orders: checked })
+                  setSettings({ ...settings, order_notifications: checked })
                 }
               />
             </div>
@@ -115,22 +120,6 @@ export function SellerSettings() {
 
           <div className="space-y-4">
             <h3 className="text-lg font-medium">General Settings</h3>
-            <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <Input
-                id="currency"
-                value={settings.currency}
-                onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="timezone">Timezone</Label>
-              <Input
-                id="timezone"
-                value={settings.timezone}
-                onChange={(e) => setSettings({ ...settings, timezone: e.target.value })}
-              />
-            </div>
           </div>
 
           <div className="flex justify-end">

@@ -9,13 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StarRating } from "@/components/ui/star-rating"
 import { LandingNavbar } from "@/components/layout/landing-navbar"
 import { Footer } from "@/components/layout/footer"
-import { ProductReviews } from "@/components/products/product-reviews"
+// import { ProductReviews } from "@/components/products/product-reviews"
 import { RelatedProducts } from "@/components/products/related-products"
 import { ShoppingCart, Heart, Store, ArrowLeft } from "lucide-react"
 import { productService } from "@/lib/api"
 import { toast } from "sonner"
 import { useCart } from "@/context/cart-context"
 import { useRouter } from "next/navigation"
+import Image from "next/image"  
 
 interface Product {
   product_id: number;
@@ -147,7 +148,7 @@ export default function ProductPage({ params }: { params: Promise<PageParams> })
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 ">
             <div className="space-y-2">
               <div className="aspect-square relative rounded-lg overflow-hidden border max-h-100 m-left-10">
-                <img
+                <Image
                   src={product.images[0]?.image_path ? `${API_URL}/uploads/${product.images[0].image_path}` : "/placeholder.svg"}
                   alt={`${product.name} image`}
                   className="h-full w-full"

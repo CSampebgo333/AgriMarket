@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { sellerService } from "@/lib/api"
 import { Save, Upload, MapPin } from "lucide-react"
+import Image from "next/image"
 
 export default function SellerStorePage() {
   const { showToast } = useToast()
@@ -39,11 +40,7 @@ export default function SellerStorePage() {
     return_policy: "",
   })
 
-  useEffect(() => {
-    fetchStoreData()
-  }, [])
-
-  const fetchStoreData = async () => {
+  const fetchStoreData = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await sellerService.getProfile()
@@ -60,19 +57,23 @@ export default function SellerStorePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [showToast])
 
-  const handleChange = (field: string, value: any) => {
+  useEffect(() => {
+    fetchStoreData()
+  }, [fetchStoreData])
+
+  const handleChange = (field: keyof typeof storeData, value: string) => {
     setStoreData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleHoursChange = (day: string, field: string, value: any) => {
+  const handleHoursChange = (day: keyof typeof storeData.store_hours, field: "open" | "close" | "closed", value: string | boolean) => {
     setStoreData((prev) => ({
       ...prev,
       store_hours: {
         ...prev.store_hours,
         [day]: {
-          ...prev.store_hours[day as keyof typeof prev.store_hours],
+          ...prev.store_hours[day],
           [field]: value,
         },
       },
@@ -153,7 +154,7 @@ export default function SellerStorePage() {
                     <Label htmlFor="store_logo">Store Logo</Label>
                     <div className="flex items-center gap-2">
                       <div className="h-12 w-12 rounded-md border overflow-hidden">
-                        <img
+                            <Image
                           src={storeData.store_logo || "/placeholder.svg?height=48&width=48"}
                           alt="Store Logo"
                           className="h-full w-full object-cover"
@@ -170,7 +171,7 @@ export default function SellerStorePage() {
                     <Label htmlFor="store_banner">Store Banner</Label>
                     <div className="flex items-center gap-2">
                       <div className="h-12 w-24 rounded-md border overflow-hidden">
-                        <img
+                        <Image
                           src={storeData.store_banner || "/placeholder.svg?height=48&width=96"}
                           alt="Store Banner"
                           className="h-full w-full object-cover"
@@ -252,7 +253,7 @@ export default function SellerStorePage() {
           <Card className="bg-white dark:bg-card">
             <CardHeader>
               <CardTitle>Business Hours</CardTitle>
-              <CardDescription>Set your store's operating hours.</CardDescription>
+              <CardDescription>Set your store&apos;s operating hours.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -263,7 +264,7 @@ export default function SellerStorePage() {
                       <Input
                         type="time"
                         value={hours.open}
-                        onChange={(e) => handleHoursChange(day, "open", e.target.value)}
+                        onChange={(e) => handleHoursChange(day as keyof typeof storeData.store_hours, "open", e.target.value)}
                         disabled={hours.closed || isLoading}
                         className="w-32"
                       />
@@ -271,7 +272,7 @@ export default function SellerStorePage() {
                       <Input
                         type="time"
                         value={hours.close}
-                        onChange={(e) => handleHoursChange(day, "close", e.target.value)}
+                        onChange={(e) => handleHoursChange(day as keyof typeof storeData.store_hours, "close", e.target.value)}
                         disabled={hours.closed || isLoading}
                         className="w-32"
                       />
@@ -284,7 +285,7 @@ export default function SellerStorePage() {
                         id={`closed-${day}`}
                         type="checkbox"
                         checked={hours.closed}
-                        onChange={(e) => handleHoursChange(day, "closed", e.target.checked)}
+                        onChange={(e) => handleHoursChange(day as keyof typeof storeData.store_hours, "closed", e.target.checked)}
                         disabled={isLoading}
                         className="h-4 w-4 rounded border-gray-300"
                       />

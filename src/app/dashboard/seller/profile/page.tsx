@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,23 +13,44 @@ import { Camera, Save } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { sellerService } from "@/lib/api"
 
+interface SellerProfile {
+  store_name: string
+  store_description: string
+  store_banner: string
+  store_logo: string
+  store_location: string
+  store_country: string
+  store_city: string
+  store_address: string
+  store_hours: {
+    [key: string]: {
+      open: string
+      close: string
+      closed: boolean
+    }
+  }
+  shipping_policy: string
+  return_policy: string
+}
+
 export default function SellerProfilePage() {
   const { showToast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
-  const [profileData, setProfileData] = useState({
-    business_name: "",
-    business_email: "",
-    business_phone: "",
-    business_address: "",
-    business_description: "",
-    logo_url: "",
+  const [profileData, setProfileData] = useState<SellerProfile>({
+    store_name: "",
+    store_description: "",
+    store_banner: "",
+    store_logo: "",
+    store_location: "",
+    store_country: "",
+    store_city: "",
+    store_address: "",
+    store_hours: {},
+    shipping_policy: "",
+    return_policy: "",
   })
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await sellerService.getProfile()
@@ -44,9 +65,13 @@ export default function SellerProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [showToast])
 
-  const handleChange = (field: string, value: string) => {
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
+
+  const handleChange = (field: keyof SellerProfile, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -72,7 +97,7 @@ export default function SellerProfilePage() {
     }
   }
 
-  if (isLoading && !profileData.business_name) {
+  if (isLoading && !profileData.store_name) {
     return <div>Loading profile data...</div>
   }
 
@@ -94,17 +119,17 @@ export default function SellerProfilePage() {
               <div className="relative">
                 <Avatar className="h-24 w-24">
                   <AvatarImage
-                    src={profileData.logo_url || "/placeholder.svg?height=96&width=96"}
+                    src={profileData.store_logo || "/placeholder.svg?height=96&width=96"}
                     alt="Business Logo"
                   />
-                  <AvatarFallback>{profileData.business_name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>{profileData.store_name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <Button size="icon" className="absolute bottom-0 right-0 h-8 w-8 rounded-full cursor-pointer">
                   <Camera className="h-4 w-4" />
                 </Button>
               </div>
               <div className="space-y-1 text-center sm:text-left">
-                <h3 className="font-medium">{profileData.business_name || "Your Business"}</h3>
+                <h3 className="font-medium">{profileData.store_name || "Your Business"}</h3>
                 <p className="text-sm text-muted-foreground">Seller</p>
                 <p className="text-sm text-muted-foreground">Member since April 2023</p>
               </div>
@@ -112,50 +137,71 @@ export default function SellerProfilePage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="business_name">Business Name</Label>
+                <Label htmlFor="store_name">Business Name</Label>
                 <Input
-                  id="business_name"
-                  value={profileData.business_name}
-                  onChange={(e) => handleChange("business_name", e.target.value)}
+                  id="store_name"
+                  value={profileData.store_name}
+                  onChange={(e) => handleChange("store_name", e.target.value)}
                   disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="business_email">Business Email</Label>
+                <Label htmlFor="store_location">Location</Label>
                 <Input
-                  id="business_email"
-                  type="email"
-                  value={profileData.business_email}
-                  onChange={(e) => handleChange("business_email", e.target.value)}
+                  id="store_location"
+                  value={profileData.store_location}
+                  onChange={(e) => handleChange("store_location", e.target.value)}
                   disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="business_phone">Business Phone</Label>
+                <Label htmlFor="store_city">City</Label>
                 <Input
-                  id="business_phone"
-                  value={profileData.business_phone}
-                  onChange={(e) => handleChange("business_phone", e.target.value)}
+                  id="store_city"
+                  value={profileData.store_city}
+                  onChange={(e) => handleChange("store_city", e.target.value)}
                   disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="business_address">Business Address</Label>
+                <Label htmlFor="store_address">Address</Label>
                 <Input
-                  id="business_address"
-                  value={profileData.business_address}
-                  onChange={(e) => handleChange("business_address", e.target.value)}
+                  id="store_address"
+                  value={profileData.store_address}
+                  onChange={(e) => handleChange("store_address", e.target.value)}
                   disabled={isLoading}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="business_description">Business Description</Label>
+              <Label htmlFor="store_description">Business Description</Label>
               <Textarea
-                id="business_description"
-                value={profileData.business_description}
-                onChange={(e) => handleChange("business_description", e.target.value)}
+                id="store_description"
+                value={profileData.store_description}
+                onChange={(e) => handleChange("store_description", e.target.value)}
+                className="min-h-[100px]"
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="shipping_policy">Shipping Policy</Label>
+              <Textarea
+                id="shipping_policy"
+                value={profileData.shipping_policy}
+                onChange={(e) => handleChange("shipping_policy", e.target.value)}
+                className="min-h-[100px]"
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="return_policy">Return Policy</Label>
+              <Textarea
+                id="return_policy"
+                value={profileData.return_policy}
+                onChange={(e) => handleChange("return_policy", e.target.value)}
                 className="min-h-[100px]"
                 disabled={isLoading}
               />

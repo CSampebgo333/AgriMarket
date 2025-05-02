@@ -9,6 +9,7 @@ import { StarRating } from "@/components/ui/star-rating"
 import { ShoppingCart } from "lucide-react"
 import { productService } from "@/lib/api"
 import { toast } from "sonner"
+import Image from "next/image"      
 
 interface Product {
   product_id: number;
@@ -93,7 +94,7 @@ export function RelatedProducts({ category, currentProductId }: { category: stri
         >
           <div className="aspect-square relative bg-gray-100">
             {product.primary_image ? (
-              <img
+              <Image
                 src={`${API_URL}/uploads/${product.primary_image}`}
                 alt={product.name}
                 className="object-cover w-full h-full"

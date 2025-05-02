@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -11,13 +11,14 @@ import { useToast } from "@/hooks/use-toast"
 import { orderService } from "@/lib/api"
 import { Search, FileDown } from "lucide-react"
 
-interface Order {
+type Order = {
   id: string
   customer: string
   date: string
   status: string
   items: number
   total: string
+  [key: string]: string | number | boolean
 }
 
 const columns = [
@@ -49,11 +50,7 @@ export default function SellerOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("all")
 
-  useEffect(() => {
-    fetchOrders()
-  }, [])
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await orderService.getAll()
@@ -70,9 +67,13 @@ export default function SellerOrdersPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [showToast])
 
-  const handleSaveOrder = async (index: number, updatedData: Record<string, any>) => {
+  useEffect(() => {
+    fetchOrders()
+  }, [fetchOrders])
+
+  const handleSaveOrder = async (index: number, updatedData: { [key: string]: string | number | boolean }) => {
     try {
       const orderId = orders[index].id
       await orderService.update(Number.parseInt(orderId), updatedData)
@@ -173,11 +174,11 @@ export default function SellerOrdersPage() {
               </TabsList>
 
               <TabsContent value="all" className="space-y-4">
-                <EditableTable columns={columns} data={filteredOrders} onSave={handleSaveOrder} />
+                <EditableTable<Order> columns={columns} data={filteredOrders} onSave={handleSaveOrder} />
               </TabsContent>
 
               <TabsContent value="pending" className="space-y-4">
-                <EditableTable
+                <EditableTable<Order>
                   columns={columns}
                   data={filteredOrders.filter((order) => order.status === "pending")}
                   onSave={handleSaveOrder}
@@ -185,7 +186,7 @@ export default function SellerOrdersPage() {
               </TabsContent>
 
               <TabsContent value="processing" className="space-y-4">
-                <EditableTable
+                <EditableTable<Order>
                   columns={columns}
                   data={filteredOrders.filter((order) => order.status === "processing")}
                   onSave={handleSaveOrder}
@@ -193,7 +194,7 @@ export default function SellerOrdersPage() {
               </TabsContent>
 
               <TabsContent value="shipped" className="space-y-4">
-                <EditableTable
+                <EditableTable<Order>
                   columns={columns}
                   data={filteredOrders.filter((order) => order.status === "shipped")}
                   onSave={handleSaveOrder}
@@ -201,7 +202,7 @@ export default function SellerOrdersPage() {
               </TabsContent>
 
               <TabsContent value="delivered" className="space-y-4">
-                <EditableTable
+                <EditableTable<Order>
                   columns={columns}
                   data={filteredOrders.filter((order) => order.status === "delivered")}
                   onSave={handleSaveOrder}

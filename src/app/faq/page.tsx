@@ -26,9 +26,9 @@ export default function FAQPage() {
             <AccordionItem value="item-2" className="border rounded-lg px-4">
               <AccordionTrigger className="text-left font-medium py-4">How do I create an account?</AccordionTrigger>
               <AccordionContent className="pb-4 text-muted-foreground">
-                To create an account, click on the "Sign Up" button in the top right corner of the page. You'll need to
-                provide your name, email address, phone number, and choose whether you're registering as a customer,
-                seller, logistician, or administrator. Once you've filled out the form, click "Create account" to
+                To create an account, click on the &quot;Sign Up&quot; button in the top right corner of the page. You&apos;ll need to
+                provide your name, email address, phone number, and choose whether you&apos;re registering as a customer,
+                seller, logistician, or administrator. Once you&apos;ve filled out the form, click &quot;Create account&quot; to
                 complete the registration process.
               </AccordionContent>
             </AccordionItem>
@@ -38,8 +38,8 @@ export default function FAQPage() {
               <AccordionContent className="pb-4 text-muted-foreground">
                 AgriMarket supports multiple payment methods including mobile money (like Orange Money and MTN Mobile
                 Money), cash on delivery, and bank transfers. When checking out, you can select your preferred payment
-                method. For mobile money and bank transfers, you'll receive instructions on how to complete the payment.
-                For cash on delivery, you'll pay when you receive your order.
+                method. For mobile money and bank transfers, you&apos;ll receive instructions on how to complete the payment.
+                For cash on delivery, you&apos;ll pay when you receive your order.
               </AccordionContent>
             </AccordionItem>
 
@@ -47,19 +47,19 @@ export default function FAQPage() {
               <AccordionTrigger className="text-left font-medium py-4">How is delivery handled?</AccordionTrigger>
               <AccordionContent className="pb-4 text-muted-foreground">
                 We work with a network of local logistics partners to ensure timely delivery of products. Delivery times
-                and costs vary depending on your location and the seller's location. During checkout, you'll see the
-                estimated delivery time and cost. You can track your order through your customer dashboard once it's
+                and costs vary depending on your location and the seller&apos;s location. During checkout, you&apos;ll see the
+                estimated delivery time and cost. You can track your order through your customer dashboard once it&apos;s
                 been placed.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-5" className="border rounded-lg px-4">
               <AccordionTrigger className="text-left font-medium py-4">
-                I'm a farmer. How do I sell my products on AgriMarket?
+                I&apos;m a farmer. How do I sell my products on AgriMarket?
               </AccordionTrigger>
               <AccordionContent className="pb-4 text-muted-foreground">
                 To sell on AgriMarket, first create an account as a seller. Once your account is approved, you can add
-                your products through your seller dashboard. You'll need to provide details such as product name,
+                your products through your seller dashboard. You&apos;ll need to provide details such as product name,
                 description, price, quantity available, and photos. Our team may verify your information before your
                 products go live on the platform.
               </AccordionContent>
@@ -80,18 +80,18 @@ export default function FAQPage() {
             <AccordionItem value="item-7" className="border rounded-lg px-4">
               <AccordionTrigger className="text-left font-medium py-4">How do I track my order?</AccordionTrigger>
               <AccordionContent className="pb-4 text-muted-foreground">
-                Once you've placed an order, you can track it through your customer dashboard. Log in to your account,
-                go to "My Orders," and select the order you want to track. You'll see the current status of your order
-                and estimated delivery time. You'll also receive SMS and email updates as your order progresses.
+                Once you&apos;ve placed an order, you can track it through your customer dashboard. Log in to your account,
+                go to &quot;My Orders,&quot; and select the order you want to track. You&apos;ll see the current status of your order
+                and estimated delivery time. You&apos;ll also receive SMS and email updates as your order progresses.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-8" className="border rounded-lg px-4">
               <AccordionTrigger className="text-left font-medium py-4">
-                What if I'm not satisfied with my order?
+                What if I&apos;m not satisfied with my order?
               </AccordionTrigger>
               <AccordionContent className="pb-4 text-muted-foreground">
-                Customer satisfaction is our priority. If you're not satisfied with your order, please contact our
+                Customer satisfaction is our priority. If you&apos;re not satisfied with your order, please contact our
                 customer support team within 24 hours of receiving your order. Depending on the issue, we may offer a
                 refund, replacement, or partial credit. Please note that perishable items have specific return policies
                 due to their nature.
@@ -103,7 +103,7 @@ export default function FAQPage() {
                 How can I contact customer support?
               </AccordionTrigger>
               <AccordionContent className="pb-4 text-muted-foreground">
-                You can contact our customer support team through the "Contact" page on our website, by email at
+                You can contact our customer support team through the &quot;Contact&quot; page on our website, by email at
                 support@agrimarket.com, or by phone at +226 XX XX XX XX. Our support hours are Monday to Friday, 8:00 AM
                 to 6:00 PM West Africa Time.
               </AccordionContent>
@@ -114,9 +114,9 @@ export default function FAQPage() {
                 Is AgriMarket available in my region?
               </AccordionTrigger>
               <AccordionContent className="pb-4 text-muted-foreground">
-                Currently, AgriMarket operates in Burkina Faso, Mali, and Niger. We're working on expanding to other
-                West African countries. If you're in one of our current service areas, you can use the platform to buy
-                or sell agricultural products. If you're outside these regions, please check back later as we continue
+                Currently, AgriMarket operates in Burkina Faso, Mali, and Niger. We&apos;re working on expanding to other
+                West African countries. If you&apos;re in one of our current service areas, you can use the platform to buy
+                or sell agricultural products. If you&apos;re outside these regions, please check back later as we continue
                 to grow.
               </AccordionContent>
             </AccordionItem>
@@ -125,7 +125,7 @@ export default function FAQPage() {
           <div className="mt-12 p-6 bg-muted rounded-lg">
             <h2 className="text-xl font-semibold mb-4">Still have questions?</h2>
             <p className="mb-4">
-              If you couldn't find the answer to your question, please don't hesitate to contact our support team.
+              If you couldn&apos;t find the answer to your question, please don&apos;t hesitate to contact our support team.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a

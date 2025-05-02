@@ -9,7 +9,7 @@ import { StarRating } from "@/components/ui/star-rating"
 import { motion } from "framer-motion"
 import { Search, ShoppingCart, Trash2, Heart } from "lucide-react"
 import Link from "next/link"
-
+import Image from "next/image"
 // Sample saved items data
 const savedItems = [
   {
@@ -80,7 +80,7 @@ export default function SavedItemsPage() {
       <Card className="bg-white dark:bg-card">
         <CardHeader>
           <CardTitle>Wishlist</CardTitle>
-          <CardDescription>Products you've saved for later.</CardDescription>
+          <CardDescription>Products you&apos;ve saved for later.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -121,7 +121,7 @@ export default function SavedItemsPage() {
                     whileHover={{ y: -5 }}
                   >
                     <div className="aspect-square relative">
-                      <img
+                      <Image
                         src={item.image || "/placeholder.svg"}
                         alt={item.name}
                         className="object-cover w-full h-full"

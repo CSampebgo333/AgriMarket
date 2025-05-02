@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,47 +11,61 @@ import { useToast } from "@/components/ui/use-toast"
 import { sellerService } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
 
+interface SellerProfile {
+  store_name: string
+  store_description: string
+  store_banner: string
+  store_logo: string
+  store_location: string
+  store_country: string
+  store_city: string
+  store_address: string
+  store_hours: {
+    [key: string]: {
+      open: string
+      close: string
+      closed: boolean
+    }
+  }
+  shipping_policy: string
+  return_policy: string
+  first_name: string
+  last_name: string
+  email: string
+  phone_number: string
+  profile_image: string
+}
+
 export default function SellerPersonalProfilePage() {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [profileData, setProfileData] = useState({
+  const [profileData, setProfileData] = useState<SellerProfile>({
+    store_name: "",
+    store_description: "",
+    store_banner: "",
+    store_logo: "",
+    store_location: "",
+    store_country: "",
+    store_city: "",
+    store_address: "",
+    store_hours: {},
+    shipping_policy: "",
+    return_policy: "",
     first_name: "",
     last_name: "",
     email: "",
     phone_number: "",
     profile_image: "",
-    business_name: "",
-    business_email: "",
-    business_phone: "",
-    business_address: "",
-    business_description: "",
-    logo_url: "",
   })
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await sellerService.getProfile()
       console.log("Profile response:", response)
-      setProfileData({
-        first_name: response.first_name || "",
-        last_name: response.last_name || "",
-        email: response.email || "",
-        phone_number: response.phone_number || "",
-        profile_image: response.profile_image || "",
-        business_name: response.business_name || "",
-        business_email: response.business_email || "",
-        business_phone: response.business_phone || "",
-        business_address: response.business_address || "",
-        business_description: response.business_description || "",
-        logo_url: response.logo_url || "",
-      })
+      setProfileData(response)
     } catch (error) {
       console.error("Error fetching profile:", error)
       toast({
@@ -62,9 +76,13 @@ export default function SellerPersonalProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [toast])
 
-  const handleChange = (field: string, value: string) => {
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
+
+  const handleChange = (field: keyof SellerProfile, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -72,13 +90,7 @@ export default function SellerPersonalProfilePage() {
     e.preventDefault()
     try {
       setIsLoading(true)
-      const updateData = {
-        ...profileData,
-        business_email: profileData.business_email || profileData.email,
-        business_phone: profileData.business_phone || profileData.phone_number,
-        logo_url: profileData.logo_url || profileData.profile_image,
-      }
-      await sellerService.updateProfile(updateData)
+      await sellerService.updateProfile(profileData)
       toast({
         title: "Success",
         description: "Profile updated successfully",
