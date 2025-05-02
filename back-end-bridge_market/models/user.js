@@ -1,51 +1,3 @@
-const mongoose = require("mongoose")
-const bcrypt = require("bcrypt")
-
-const UserSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-})
-
-// Hash the password before saving to the database
-UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next()
-
-  try {
-    const salt = await bcrypt.genSalt(10)
-    this.password = await bcrypt.hash(this.password, salt)
-    return next()
-  } catch (err) {
-    return next(err)
-  }
-})
-
-// Method to compare password for login
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  try {
-    return await bcrypt.compare(candidatePassword, this.password)
-  } catch (err) {
-    throw new Error(err)
-  }
-}
-
-const User = mongoose.model("User", UserSchema)
-
 const db = require("../lib/db")
 const bcryptjs = require("bcryptjs")
 
@@ -209,12 +161,9 @@ class UserModel {
         }
       }
 
-      // Commit the transaction
       await db.commitTransaction(connection)
-
-      return true
+      return await this.getById(userId)
     } catch (error) {
-      // Rollback the transaction in case of error
       await db.rollbackTransaction(connection)
       throw error
     }
@@ -225,117 +174,52 @@ class UserModel {
     return db.remove("users", { user_id: userId })
   }
 
-  // Get all users with pagination
+  // Get all users with pagination and filters
   static async getAll(page = 1, limit = 10, filters = {}) {
     const offset = (page - 1) * limit
-
-    let sql = "SELECT * FROM users"
+    let query = "SELECT * FROM users"
     const params = []
 
-    // Apply filters
     if (Object.keys(filters).length > 0) {
-      const whereConditions = []
-
-      if (filters.user_type) {
-        whereConditions.push("user_type = ?")
-        params.push(filters.user_type)
+      const conditions = []
+      for (const [key, value] of Object.entries(filters)) {
+        conditions.push(`${key} = ?`)
+        params.push(value)
       }
-
-      if (filters.country) {
-        whereConditions.push("country = ?")
-        params.push(filters.country)
-      }
-
-      if (filters.search) {
-        whereConditions.push("(user_name LIKE ? OR email LIKE ?)")
-        params.push(`%${filters.search}%`, `%${filters.search}%`)
-      }
-
-      if (whereConditions.length > 0) {
-        sql += " WHERE " + whereConditions.join(" AND ")
-      }
+      query += " WHERE " + conditions.join(" AND ")
     }
 
-    sql += " ORDER BY joined_date DESC LIMIT ? OFFSET ?"
+    query += " LIMIT ? OFFSET ?"
     params.push(limit, offset)
 
-    const users = await db.query(sql, params)
-
-    // Get total count for pagination
-    let countSql = "SELECT COUNT(*) as total FROM users"
-    const countParams = []
-
-    if (Object.keys(filters).length > 0) {
-      const whereConditions = []
-
-      if (filters.user_type) {
-        whereConditions.push("user_type = ?")
-        countParams.push(filters.user_type)
-      }
-
-      if (filters.country) {
-        whereConditions.push("country = ?")
-        countParams.push(filters.country)
-      }
-
-      if (filters.search) {
-        whereConditions.push("(user_name LIKE ? OR email LIKE ?)")
-        countParams.push(`%${filters.search}%`, `%${filters.search}%`)
-      }
-
-      if (whereConditions.length > 0) {
-        countSql += " WHERE " + whereConditions.join(" AND ")
-      }
-    }
-
-    const countResult = await db.getOne(countSql, countParams)
-    const total = countResult.total
-
-    return {
-      users,
-      pagination: {
-        total,
-        page,
-        limit,
-        pages: Math.ceil(total / limit),
-      },
-    }
+    return db.query(query, params)
   }
 
-  // Get user details with specialized information
+  // Get full user details including specialized data
   static async getFullDetails(userId) {
     const user = await this.getById(userId)
-
     if (!user) return null
 
-    let specializedInfo = null
+    let specializedData = null
 
     switch (user.user_type) {
       case "Seller":
-        specializedInfo = await db.getOne("SELECT * FROM sellers WHERE user_id = ?", [userId])
+        specializedData = await db.getOne("SELECT * FROM sellers WHERE user_id = ?", [userId])
         break
       case "Customer":
-        specializedInfo = await db.getOne("SELECT * FROM customers WHERE user_id = ?", [userId])
+        specializedData = await db.getOne("SELECT * FROM customers WHERE user_id = ?", [userId])
         break
       case "Admin":
-        specializedInfo = await db.getOne("SELECT * FROM administrators WHERE user_id = ?", [userId])
-        if (specializedInfo && specializedInfo.permissions) {
-          try {
-            specializedInfo.permissions = JSON.parse(specializedInfo.permissions)
-          } catch (e) {
-            console.error("Error parsing permissions JSON:", e)
-          }
-        }
+        specializedData = await db.getOne("SELECT * FROM administrators WHERE user_id = ?", [userId])
         break
       case "Logistician":
-        specializedInfo = await db.getOne("SELECT * FROM logisticians WHERE user_id = ?", [userId])
+        specializedData = await db.getOne("SELECT * FROM logisticians WHERE user_id = ?", [userId])
         break
     }
 
     return {
       ...user,
-      password: undefined, // Remove password from response
-      specializedInfo,
+      specialized_data: specializedData,
     }
   }
 
@@ -345,11 +229,4 @@ class UserModel {
   }
 }
 
-module.exports = {
-  User,
-  UserModel,
-  createUser: UserModel.create,
-  getUserById: UserModel.getById,
-  updateUser: UserModel.update,
-  deleteUser: UserModel.delete,
-}
+module.exports = UserModel
