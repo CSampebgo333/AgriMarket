@@ -31,8 +31,8 @@ export default function SellerProductsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [filters, setFilters] = useState({
     search: "",
-    category: "",
-    status: "",
+    category: "all",
+    status: "all",
   })
   const [sortOption, setSortOption] = useState("name-asc")
   const [mounted, setMounted] = useState(false)
@@ -91,8 +91,8 @@ export default function SellerProductsPage() {
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(filters.search.toLowerCase())
-    const matchesCategory = !filters.category || product.category === filters.category
-    const matchesStatus = !filters.status || product.status === filters.status
+    const matchesCategory = filters.category === "all" || product.category === filters.category
+    const matchesStatus = filters.status === "all" || product.status === filters.status
     return matchesSearch && matchesCategory && matchesStatus
   })
 
@@ -142,7 +142,7 @@ export default function SellerProductsPage() {
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="Grains">Grains</SelectItem>
                 <SelectItem value="Vegetables">Vegetables</SelectItem>
                 <SelectItem value="Fruits">Fruits</SelectItem>
@@ -158,7 +158,7 @@ export default function SellerProductsPage() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="in-stock">In Stock</SelectItem>
                 <SelectItem value="low-stock">Low Stock</SelectItem>
                 <SelectItem value="out-of-stock">Out of Stock</SelectItem>

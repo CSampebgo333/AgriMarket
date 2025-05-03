@@ -32,8 +32,8 @@ export function LoginForm() {
         return
       }
       
-      // Store token and user data
-      localStorage.setItem("token", response.token)
+      // Store token in cookie and user data in localStorage
+      document.cookie = `token=${response.token}; path=/; max-age=2592000` // 30 days
       localStorage.setItem("user", JSON.stringify(response.user))
       
       showToast({
