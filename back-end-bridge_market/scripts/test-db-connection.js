@@ -6,7 +6,7 @@ const path = require('path');
 async function testConnection() {
   try {
     // Read SSL certificate
-    const sslCert = fs.readFileSync(path.join(__dirname, '../ssl/ca.pem'));
+    const sslCert = fs.readFileSync(path.join(__dirname, '../ssl/agrimarket-ssl-public-cert.cert'));
 
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST,

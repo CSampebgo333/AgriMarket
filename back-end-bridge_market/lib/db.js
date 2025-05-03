@@ -4,7 +4,7 @@ const path = require('path')
 require("dotenv").config()
 
 // Read SSL certificate
-const sslCert = fs.readFileSync(path.join(__dirname, '../ssl/ca.pem'))
+const sslCert = fs.readFileSync(path.join(__dirname, '../ssl/agrimarket-ssl-public-cert.cert'))
 
 // Create a connection pool with environment variables
 const pool = mysql.createPool({
