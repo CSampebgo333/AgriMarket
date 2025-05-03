@@ -146,6 +146,8 @@ export default function AboutPage() {
                 <Image
                   src="/images/img1.jpg"
                   alt="Farmers in West Africa"
+                  width={800}
+                  height={600}
                   fill
                   className="object-cover rounded-lg"
                   priority
@@ -254,6 +256,8 @@ export default function AboutPage() {
                 <Image
                   src="/images/img1.jpg"
                   alt="AgriMarket Impact"
+                  width={800}
+                  height={600}
                   fill
                   className="object-cover rounded-lg"
                   priority

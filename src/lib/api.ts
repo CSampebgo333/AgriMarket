@@ -196,10 +196,10 @@ export const productService = {
   getAll: async (params: ProductFilters) => {
     try {
       const response = await api.get('/products', { params });
-      return response.data;
+      return Array.isArray(response.data) ? response.data : response.data.products || [];
     } catch (error) {
       console.error('Error fetching products:', error);
-      throw error;
+      return [];
     }
   },
   getById: async (id: number) => {
@@ -214,10 +214,10 @@ export const productService = {
   getByCategory: async (categoryId: number) => {
     try {
       const response = await api.get(`/products/category/${categoryId}`);
-      return response.data;
+      return Array.isArray(response.data) ? response.data : response.data.products || [];
     } catch (error) {
       console.error(`Error fetching products for category ${categoryId}:`, error);
-      throw error;
+      return [];
     }
   },
   create: async (productData: FormData) => {
@@ -258,10 +258,11 @@ export const productService = {
   getProducts: async (filters: ProductFilters) => {
     try {
       const response = await api.get('/products', { params: filters });
-      return response.data;
+      // The response data has a products array and pagination info
+      return response.data.products || [];
     } catch (error) {
       console.error('Error fetching products with filters:', error);
-      throw error;
+      return [];
     }
   },
 };

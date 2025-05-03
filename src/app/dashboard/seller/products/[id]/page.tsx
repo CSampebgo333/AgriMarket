@@ -22,6 +22,8 @@ interface Product {
   image: string;
 }
 
+const DEFAULT_PLACEHOLDER = '/images/placeholder.svg';
+
 export default function ProductDetailPage({ params }: PageProps) {
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
@@ -120,19 +122,17 @@ export default function ProductDetailPage({ params }: PageProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="relative w-full h-64">
-          {product.image ? (
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-cover rounded-lg"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          ) : (
-            <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-              <span className="text-gray-400">No image available</span>
-            </div>
-          )}
+          <Image
+            src={product.image || DEFAULT_PLACEHOLDER}
+            alt={product.name}
+            fill
+            className="object-cover rounded-lg"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = DEFAULT_PLACEHOLDER;
+            }}
+          />
         </div>
 
         <div className="space-y-6">
