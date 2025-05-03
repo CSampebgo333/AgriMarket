@@ -4,7 +4,22 @@ const path = require('path')
 require("dotenv").config()
 
 // Read SSL certificate
-const sslCert = fs.readFileSync(path.join(__dirname, '../ssl/agrimarket-ssl-public-cert.cert'))
+let sslConfig = undefined;
+
+if (process.env.DB_USE_SSL === 'true') {
+  try {
+    const certPath = path.join(__dirname, '../ssl/agrimarket-ssl-public-cert.cert');
+    sslConfig = {
+      ca: fs.readFileSync(certPath),
+      rejectUnauthorized: true,
+    };
+  } catch (err) {
+    console.error("⚠️ SSL cert file not found:", err.message);
+    // Continue without SSL
+    sslConfig = undefined;
+  }
+}
+
 
 // Create a connection pool with environment variables
 const pool = mysql.createPool({
@@ -16,11 +31,8 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  ssl: {
-    ca: sslCert,
-    rejectUnauthorized: true
-  }
-})
+  ssl: sslConfig, // will be undefined if not used
+});
 
 // Test the connection on startup but don't exit the process on failure
 pool
