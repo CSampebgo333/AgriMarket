@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://agrimarket-1.onrender.com/api';
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://agrimarket-1.onrender.com/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -24,13 +26,17 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
 );
 
 // Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('Response error:', error);
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       // Remove token cookie
       document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -188,57 +194,75 @@ export const sellerService = {
 // Product service
 export const productService = {
   getAll: async (params: ProductFilters) => {
-    const response = await api.get('/products', { params });
-    return response.data;
+    try {
+      const response = await api.get('/products', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
   },
   getById: async (id: number) => {
-    const response = await api.get(`/products/${id}`);
-    return response.data;
+    try {
+      const response = await api.get(`/products/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching product ${id}:`, error);
+      throw error;
+    }
   },
   getByCategory: async (categoryId: number) => {
-    const response = await api.get(`/products/category/${categoryId}`);
-    return response.data;
+    try {
+      const response = await api.get(`/products/category/${categoryId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching products for category ${categoryId}:`, error);
+      throw error;
+    }
   },
   create: async (productData: FormData) => {
-    const response = await api.post('/products', productData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      const response = await api.post('/products', productData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
   },
   update: async (id: number, productData: FormData) => {
     try {
-      const config = {
+      const response = await api.put(`/products/${id}`, productData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      };
-      
-      const response = await api.put(`/products/${id}`, productData, config);
+        },
+      });
       return response.data;
     } catch (error) {
-      console.error('Error updating product:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error details:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          headers: error.response?.headers,
-          message: error.message,
-          config: error.config
-        });
-      }
+      console.error(`Error updating product ${id}:`, error);
       throw error;
     }
   },
   delete: async (id: number) => {
-    const response = await api.delete(`/products/${id}`);
-    return response.data;
+    try {
+      const response = await api.delete(`/products/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting product ${id}:`, error);
+      throw error;
+    }
   },
   getProducts: async (filters: ProductFilters) => {
-    const response = await api.get('/products', { params: filters });
-    return response.data;
+    try {
+      const response = await api.get('/products', { params: filters });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching products with filters:', error);
+      throw error;
+    }
   },
 };
 

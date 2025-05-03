@@ -1,251 +1,218 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Badge } from "@/components/ui/badge"
-import { Table } from "@/components/ui/table"
+import { productService } from '@/lib/api'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+// import { useToast } from '@/hooks/use-toast'
+// import { Badge } from '@/components/ui/badge'
 
 interface Product {
-  id: string
+  id: number
   name: string
-  category: string
   price: number
-  stock: number
-  status: "in-stock" | "low-stock" | "out-of-stock"
-}
-
-interface ProductFormData {
-  name: string
   category: string
-  price: number
-  stock: string
+  quantity: number
+  status: string
 }
 
 export default function SellerProductsPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [filters, setFilters] = useState({
-    search: "",
-    category: "all",
-    status: "all",
-  })
-  const [sortOption, setSortOption] = useState("name-asc")
-  const [mounted, setMounted] = useState(false)
-  const { showToast } = useToast()
   const router = useRouter()
-
-  const fetchProducts = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      const response = await fetch("/api/products")
-      if (!response.ok) throw new Error("Failed to fetch products")
-      const data = await response.json()
-      setProducts(data)
-    } catch (error) {
-      showToast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to load products",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }, [showToast])
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [filters, setFilters] = useState({
+    search: '',
+    category: 'all',
+    status: 'all',
+  })
+  const [sortOption, ] = useState('name-asc')
+  // const { showToast } = useToast()
 
   useEffect(() => {
-    setMounted(true)
     fetchProducts()
-  }, [fetchProducts])
+  }, [])
 
-  const handleSaveProduct = async (index: number, data: ProductFormData) => {
+  const fetchProducts = async () => {
     try {
-      const product = products[index]
-      const response = await fetch(`/api/products/${product.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) throw new Error("Failed to update product")
-      await fetchProducts()
-      showToast({
-        title: "Success",
-        description: "Product updated successfully",
-      })
+      setLoading(true)
+      const data = await productService.getAll({})
+      setProducts(data)
     } catch (error) {
-      showToast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update product",
-        variant: "destructive",
-      })
+      console.error('Error fetching products:', error)
+      setError('Failed to load products. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleRowClick = (product: Product) => {
-    router.push(`/dashboard/seller/products/${product.id}`)
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this product?')) {
+      return
+    }
+
+    try {
+      await productService.delete(id)
+      setProducts(products.filter(product => product.id !== id))
+    } catch (error) {
+      console.error('Error deleting product:', error)
+      alert('Failed to delete product. Please try again.')
+    }
   }
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(filters.search.toLowerCase())
-    const matchesCategory = filters.category === "all" || product.category === filters.category
-    const matchesStatus = filters.status === "all" || product.status === filters.status
+    const matchesCategory = filters.category === 'all' || product.category === filters.category
+    const matchesStatus = filters.status === 'all' || product.status === filters.status
     return matchesSearch && matchesCategory && matchesStatus
   })
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortOption) {
-      case "name-asc":
+      case 'name-asc':
         return a.name.localeCompare(b.name)
-      case "name-desc":
+      case 'name-desc':
         return b.name.localeCompare(a.name)
-      case "price-asc":
+      case 'price-asc':
         return a.price - b.price
-      case "price-desc":
+      case 'price-desc':
         return b.price - a.price
       default:
         return 0
     }
   })
 
-  if (!mounted) return null
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="space-y-4">
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+          {error}
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Products</h1>
-        <Button onClick={() => router.push("/dashboard/seller/products/new")}>
-          Add Product
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">My Products</h1>
+        <Button onClick={() => router.push('/dashboard/seller/products/create')}>
+          Add New Product
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Product List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 mb-4">
-            <Input
-              placeholder="Search products..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="max-w-sm"
-            />
-            <Select
-              value={filters.category}
-              onValueChange={(value) => setFilters({ ...filters, category: value })}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="Grains">Grains</SelectItem>
-                <SelectItem value="Vegetables">Vegetables</SelectItem>
-                <SelectItem value="Fruits">Fruits</SelectItem>
-                <SelectItem value="Tubers">Tubers</SelectItem>
-                <SelectItem value="Herbs">Herbs</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={filters.status}
-              onValueChange={(value) => setFilters({ ...filters, status: value })}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="in-stock">In Stock</SelectItem>
-                <SelectItem value="low-stock">Low Stock</SelectItem>
-                <SelectItem value="out-of-stock">Out of Stock</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={sortOption}
-              onValueChange={setSortOption}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                <SelectItem value="price-asc">Price (Low to High)</SelectItem>
-                <SelectItem value="price-desc">Price (High to Low)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Input
+          placeholder="Search products..."
+          value={filters.search}
+          onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+        />
+        <Select
+          value={filters.category}
+          onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="vegetables">Vegetables</SelectItem>
+            <SelectItem value="fruits">Fruits</SelectItem>
+            <SelectItem value="grains">Grains</SelectItem>
+            <SelectItem value="dairy">Dairy</SelectItem>
+            <SelectItem value="meat">Meat</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={filters.status}
+          onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-          <div className="overflow-x-auto">
-            {isLoading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              </div>
-            ) : (
-              <Table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedProducts.map((product, index) => (
-                    <tr key={product.id} onClick={() => handleRowClick(product)} className="cursor-pointer">
-                      <td>{product.name}</td>
-                      <td>{product.category}</td>
-                      <td>${product.price.toFixed(2)}</td>
-                      <td>{product.stock}</td>
-                      <td>
-                        <Badge
-                          variant={
-                            product.status === "in-stock"
-                              ? "default"
-                              : product.status === "low-stock"
-                              ? "secondary"
-                              : "destructive"
-                          }
-                        >
-                          {product.status === "in-stock"
-                            ? "In Stock"
-                            : product.status === "low-stock"
-                            ? "Low Stock"
-                            : "Out of Stock"}
-                        </Badge>
-                      </td>
-                      <td>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleSaveProduct(index, {
-                              name: product.name,
-                              category: product.category,
-                              price: product.price,
-                              stock: product.stock.toString(),
-                            })
-                          }}
-                        >
-                          Edit
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedProducts.map((product) => (
+              <TableRow key={product.id}>
+                <TableCell>{product.name}</TableCell>
+                <TableCell className="capitalize">{product.category}</TableCell>
+                <TableCell>${product.price.toFixed(2)}</TableCell>
+                <TableCell>{product.quantity}</TableCell>
+                <TableCell className="capitalize">{product.status}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/dashboard/seller/products/${product.id}/edit`)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(product.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }
