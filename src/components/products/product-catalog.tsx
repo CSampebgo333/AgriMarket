@@ -81,7 +81,7 @@ export function ProductCatalog({ filters = {} }: ProductCatalogProps) {
   }, [sortOption, mounted, filters, fetchProducts]);
 
   // Filter products based on search query
-  const filteredProducts = (products || []).filter(
+  const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category_name.toLowerCase().includes(searchQuery.toLowerCase()) ||

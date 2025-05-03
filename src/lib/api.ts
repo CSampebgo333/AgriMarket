@@ -258,8 +258,7 @@ export const productService = {
   getProducts: async (filters: ProductFilters) => {
     try {
       const response = await api.get('/products', { params: filters });
-      // The response data has a products array and pagination info
-      return response.data.products || [];
+      return Array.isArray(response.data) ? response.data : response.data.products || [];
     } catch (error) {
       console.error('Error fetching products with filters:', error);
       return [];

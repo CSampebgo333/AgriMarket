@@ -48,8 +48,6 @@ export function HeroSection() {
             <Image
               src="/images/img1.jpg"
               alt="African farmers with crops"
-              width={800}
-              height={600}
               className="w-full h-full object-cover rounded-lg"
             />
           </motion.div>

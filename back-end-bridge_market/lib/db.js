@@ -19,10 +19,10 @@ if (process.env.DB_USE_SSL === 'true') {
 }
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'SG-agrimarket-12470-mysql-master.servers.mongodirector.com',
-  user: process.env.DB_USER || 'sgroot',
-  password: process.env.DB_PASSWORD || 'ETfVhe6fWPYq58-q',
-  database: process.env.DB_NAME || 'agrimarket',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
