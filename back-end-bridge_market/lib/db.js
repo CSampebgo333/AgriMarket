@@ -3,7 +3,6 @@ const fs = require('fs')
 const path = require('path')
 require("dotenv").config()
 
-// Read SSL certificate
 let sslConfig = undefined;
 
 if (process.env.DB_USE_SSL === 'true') {
@@ -15,24 +14,22 @@ if (process.env.DB_USE_SSL === 'true') {
     };
   } catch (err) {
     console.error("⚠️ SSL cert file not found:", err.message);
-    // Continue without SSL
     sslConfig = undefined;
   }
 }
 
-
-// Create a connection pool with environment variables
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "agrimarket",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  ssl: sslConfig, // will be undefined if not used
+  ssl: sslConfig,
 });
+
 
 // Test the connection on startup but don't exit the process on failure
 pool
