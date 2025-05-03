@@ -1,5 +1,10 @@
 const mysql = require("mysql2/promise")
+const fs = require('fs')
+const path = require('path')
 require("dotenv").config()
+
+// Read SSL certificate
+const sslCert = fs.readFileSync(path.join(__dirname, '../ssl/ca.pem'))
 
 // Create a connection pool with environment variables
 const pool = mysql.createPool({
@@ -12,6 +17,7 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   ssl: {
+    ca: sslCert,
     rejectUnauthorized: true
   }
 })
