@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://agrimarket-1.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -122,7 +122,7 @@ interface ProductFilters {
 // Auth service
 export const authService = {
   login: async (credentials: LoginCredentials) => {
-    const response = await api.post('/api/auth/login', credentials);
+    const response = await api.post('/auth/login', credentials);
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -130,7 +130,7 @@ export const authService = {
     return response.data;
   },
   register: async (userData: RegisterData) => {
-    const response = await api.post('/api/auth/register', userData);
+    const response = await api.post('/auth/register', userData);
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -143,22 +143,22 @@ export const authService = {
       localStorage.removeItem('user');
     }
   },
-  getProfile: () => api.get('/api/auth/me'),
-  updateProfile: (profileData: UserProfile) => api.put('/api/auth/me', profileData),
+  getProfile: () => api.get('/auth/me'),
+  updateProfile: (profileData: UserProfile) => api.put('/auth/me', profileData),
 };
 
 // Seller service
 export const sellerService = {
   getProfile: async () => {
-    const response = await api.get('/api/sellers/profile');
+    const response = await api.get('/sellers/profile');
     return response.data;
   },
   updateProfile: async (profileData: SellerProfile) => {
-    const response = await api.put('/api/sellers/profile', profileData);
+    const response = await api.put('/sellers/profile', profileData);
     return response.data;
   },
   uploadProfileImage: async (formData: FormData) => {
-    const response = await api.post('/api/sellers/profile/image', formData, {
+    const response = await api.post('/sellers/profile/image', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -166,15 +166,15 @@ export const sellerService = {
     return response.data;
   },
   getSettings: async () => {
-    const response = await api.get('/api/sellers/settings');
+    const response = await api.get('/sellers/settings');
     return response.data;
   },
   updateSettings: async (settingsData: SellerSettings) => {
-    const response = await api.put('/api/sellers/settings', settingsData);
+    const response = await api.put('/sellers/settings', settingsData);
     return response.data;
   },
   getStats: async () => {
-    const response = await api.get('/api/sellers/stats');
+    const response = await api.get('/sellers/stats');
     return response.data;
   },
 };
@@ -182,19 +182,19 @@ export const sellerService = {
 // Product service
 export const productService = {
   getAll: async (params: ProductFilters) => {
-    const response = await api.get('/api/products', { params });
+    const response = await api.get('/products', { params });
     return response.data;
   },
   getById: async (id: number) => {
-    const response = await api.get(`/api/products/${id}`);
+    const response = await api.get(`/products/${id}`);
     return response.data;
   },
   getByCategory: async (categoryId: number) => {
-    const response = await api.get(`/api/products/category/${categoryId}`);
+    const response = await api.get(`/products/category/${categoryId}`);
     return response.data;
   },
   create: async (productData: FormData) => {
-    const response = await api.post('/api/products', productData, {
+    const response = await api.post('/products', productData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -210,7 +210,7 @@ export const productService = {
         }
       };
       
-      const response = await api.put(`/api/products/${id}`, productData, config);
+      const response = await api.put(`/products/${id}`, productData, config);
       return response.data;
     } catch (error) {
       console.error('Error updating product:', error);
@@ -227,11 +227,11 @@ export const productService = {
     }
   },
   delete: async (id: number) => {
-    const response = await api.delete(`/api/products/${id}`);
+    const response = await api.delete(`/products/${id}`);
     return response.data;
   },
   getProducts: async (filters: ProductFilters) => {
-    const response = await api.get('/api/products', { params: filters });
+    const response = await api.get('/products', { params: filters });
     return response.data;
   },
 };
@@ -245,23 +245,23 @@ export const categoryService = {
 // Order service
 export const orderService = {
   getAll: async () => {
-    const response = await api.get('/api/orders');
+    const response = await api.get('/orders');
     return response.data;
   },
   getById: async (id: number) => {
-    const response = await api.get(`/api/orders/${id}`);
+    const response = await api.get(`/orders/${id}`);
     return response.data;
   },
   create: async (orderData: FormData) => {
-    const response = await api.post('/api/orders', orderData);
+    const response = await api.post('/orders', orderData);
     return response.data;
   },
   update: async (id: number, orderData: { [key: string]: string | number | boolean }) => {
-    const response = await api.put(`/api/orders/${id}`, orderData);
+    const response = await api.put(`/orders/${id}`, orderData);
     return response.data;
   },
   delete: async (id: number) => {
-    const response = await api.delete(`/api/orders/${id}`);
+    const response = await api.delete(`/orders/${id}`);
     return response.data;
   },
 };
@@ -316,15 +316,15 @@ export const deliveryService = {
 
 export const customerService = {
   getProfile: async () => {
-    const response = await api.get("/api/customers/profile")
+    const response = await api.get("/customers/profile")
     return response.data
   },
   updateProfile: async (profileData: CustomerProfile) => {
-    const response = await api.put("/api/customers/profile", profileData)
+    const response = await api.put("/customers/profile", profileData)
     return response.data
   },
   uploadProfileImage: async (formData: FormData) => {
-    const response = await api.post("/api/customers/profile/image", formData, {
+    const response = await api.post("/customers/profile/image", formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
